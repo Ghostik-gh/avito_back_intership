@@ -1,0 +1,142 @@
+package main
+
+import (
+	"avito_back_intership/internal/config"
+	"avito_back_intership/internal/lib/logger/sl"
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"log/slog"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+
+	_ "avito_back_intership/docs"
+
+	httpSwagger "github.com/swaggo/http-swagger"
+)
+
+const (
+	envLocal = "local"
+	envDev   = "dev"
+	envProd  = "prod"
+)
+
+// @title           Avito Intership (Backend)
+// @version         1.0
+// @description		Segmentation for A_B tests
+
+// @contact.name   GhostikGH
+// @contact.url    https://t.me/GhostikGH
+// @contact.email  feodor200@mail.ru
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+func main() {
+	cfg := config.MustLoad()
+
+	fmt.Println("CONFIG: ", cfg)
+	log := setupLogger(cfg.Env)
+
+	log.Info("starting slog")
+	log.Debug("debug mod")
+
+	// storage, err := sqlite.New(cfg.StoragePath)
+	// _ = storage
+	// if err != nil {
+	// 	log.Error("failed to init storage", sl.Err(err))
+	// 	os.Exit(1)
+	// }
+
+	router := chi.NewRouter()
+
+	router.Use(middleware.RequestID)
+	router.Use(middleware.Logger)
+	router.Use(middleware.RealIP)
+	router.Use(middleware.Recoverer)
+	router.Use(middleware.URLFormat)
+
+	// router.Route("/url", func(r chi.Router) {
+	// 	r.Use(middleware.BasicAuth("avito_back_intership", map[string]string{
+	// 		cfg.HTTPServer.User: cfg.HTTPServer.Password,
+	// 	}))
+	// 	r.Post("/", save.New(log, storage))
+	// 	r.Delete("/{alias}", delete.New(log, storage))
+	// })
+
+	// // Создает сегмент
+	// router.Post("/segment", _______.New(log, storage))
+	// // Удаляет сегмент
+	// router.Delete("/segment", _______.New(log, storage))
+	// // Получает список пользователей в данном сегменте
+	// router.Get("/segment", _______.New(log, storage))
+
+	// // Создает юзера с 0 или более сегментами
+	// router.Post("/user", _______.New(log, storage))
+	// // Удаляет юзера
+	// router.Delete("/user", _______.New(log, storage))
+	// // Получает сегменты юзера
+	// router.Get("/user", _______.New(log, storage))
+	// // Добавляет сегмент юзеру
+	// router.Put("/user", _______.New(log, storage))
+
+	// // Выводит csv файл с логом для юзера
+	// router.Get("/log", _______.New(log, storage))
+
+	router.Get("/swagger/*", httpSwagger.WrapHandler)
+
+	// Graceful shutdown
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	srv := &http.Server{
+		Addr:         cfg.Addres,
+		Handler:      router,
+		ReadTimeout:  cfg.HTTPServer.Timeout,
+		WriteTimeout: cfg.HTTPServer.Timeout,
+		IdleTimeout:  cfg.HTTPServer.IdleTimeout,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			log.Error("failed to start server")
+		}
+	}()
+	log.Info("server started", slog.String("address", cfg.Addres))
+
+	<-done
+	log.Info("stopping server")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// TODO: Close Storage
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Error("failed to stop server", sl.Err(err))
+	}
+
+	log.Info("server stopped")
+}
+
+func setupLogger(env string) *slog.Logger {
+
+	var log *slog.Logger
+
+	switch env {
+	case envLocal:
+		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	case envDev:
+		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	case envProd:
+		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	}
+
+	return log
+}

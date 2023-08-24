@@ -1,0 +1,12 @@
+basePath: /api/v1
+host: localhost:8080
+info:
+  contact:
+    email: feodor200@mail.ru
+    name: Contacts
+    url: https://t.me/GhostikGH
+  description: Segmentation for A_B tests
+  title: Avito Intership (Backend)
+  version: "1.0"
+paths: {}
+swagger: "2.0"
