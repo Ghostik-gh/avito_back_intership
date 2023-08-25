@@ -1,12 +1,24 @@
 # avito_back_intership
 
+Backend Intership Test task for Avito
+
 Sources:
 
-Swagger - https://www.youtube.com/watch?v=DBZgt9iIWzk
+1. Swagger:
 
-http://localhost:8002/swagger/index.html
+- https://www.youtube.com/watch?v=DBZgt9iIWzk
+- https://github.com/swaggo/swag#declarative-comments-format
+- http://localhost:8002/swagger/index.html
 
-Backend Intership Test task for Avito
+2. Postgres:
+
+docker run --name=segments -e POSTGRES_USER='root' -e POSTGRES_PASSWORD='qweasd' -p 5432:5432 -d postgres
+
+- pgx
+- pq
+- psql
+- sql
+- gorm
 
 ## Требования и детали по заданию
 
