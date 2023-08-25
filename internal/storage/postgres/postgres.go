@@ -19,7 +19,7 @@ func New(storagePath string) (*Storage, error) {
 	}
 
 	_, err = db.Exec(`
-		CREATE TABLE
+		CREATE TABLE IF NOT EXISTS
 		"segment" (
 			"name" VARCHAR(255) NOT NULL UNIQUE,
 			"amount" FLOAT,
@@ -27,14 +27,14 @@ func New(storagePath string) (*Storage, error) {
 		)
 		WITH (OIDS = FALSE);
 
-		CREATE TABLE
+		CREATE TABLE IF NOT EXISTS
 			"people" (
 				"user_id" integer NOT NULL,
 				CONSTRAINT "user_pk" PRIMARY KEY ("user_id")
 			)
 		WITH (OIDS = FALSE);
 
-		CREATE TABLE
+		CREATE TABLE IF NOT EXISTS
 			"user_segment" (
 				"user_id" integer NOT NULL,
 				"seg_name" VARCHAR(255) NOT NULL,
@@ -42,7 +42,7 @@ func New(storagePath string) (*Storage, error) {
 			)
 		WITH (OIDS = FALSE);
 
-		CREATE TABLE
+		CREATE TABLE IF NOT EXISTS
 			"log" (
 				"user_id" integer NOT NULL,
 				"seg_name" VARCHAR(255) NOT NULL,
@@ -51,13 +51,16 @@ func New(storagePath string) (*Storage, error) {
 			)
 		WITH (OIDS = FALSE);
 
+		ALTER TABLE "user_segment" DROP CONSTRAINT IF EXISTS user_segment_fk0;
+		ALTER TABLE "user_segment" DROP CONSTRAINT IF EXISTS user_segment_fk1;
+		
 		ALTER TABLE "user_segment"
 		ADD
 			CONSTRAINT "user_segment_fk0" FOREIGN KEY ("user_id") REFERENCES "people"("user_id") ON DELETE CASCADE;
 
 		ALTER TABLE "user_segment"
 		ADD
-			CONSTRAINT "user_segment_fk1" FOREIGN KEY ("seg_name") REFERENCES "segment"("seg_name") ON DELETE CASCADE;
+			CONSTRAINT "user_segment_fk1" FOREIGN KEY ("seg_name") REFERENCES "segment"("name") ON DELETE CASCADE;
 			`)
 
 	if err != nil {
@@ -69,7 +72,6 @@ func New(storagePath string) (*Storage, error) {
 
 func (s *Storage) CreateSegment(name string, amount float64) error {
 	const op = "storage.postgres.CreateSegment"
-
 	_, err := s.db.Exec(`INSERT INTO segment (name, amount) VALUES ('?', ?);`, name, amount)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
@@ -129,6 +131,42 @@ func (s *Storage) DeleteUserSegment(user_id int, segment string) error {
 func (s *Storage) CreateLog(user_id int, seg_name, opertaion string) error {
 	const op = "storage.postgres.CreateLog"
 	_, err := s.db.Exec(`INSERT INTO user_segment VALUES (?, '?', '?', now());`, user_id, seg_name, opertaion)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
+}
+
+func (s *Storage) UserInfo(user_id int) (*sql.Rows, error) {
+	const op = "storage.postgres.UserInfo"
+	data, err := s.db.Query(`SELECT * FROM user_segment WHERE user_id=? `, user_id)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return data, nil
+}
+
+func (s *Storage) UserLog(user_id int) (*sql.Rows, error) {
+	const op = "storage.postgres.UserLog"
+	data, err := s.db.Query(`SELECT * FROM log WHERE user_id=? `, user_id)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return data, nil
+}
+
+func (s *Storage) SegmentInfo(segment string) (*sql.Rows, error) {
+	const op = "storage.postgres.SegmentInfo"
+	data, err := s.db.Query(`SELECT * FROM user_segment WHERE seg_name='?' `, segment)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return data, nil
+}
+
+func (s *Storage) Close() error {
+	const op = "storage.postgres.Close"
+	err := s.db.Close()
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
