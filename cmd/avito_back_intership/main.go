@@ -6,6 +6,9 @@ import (
 	"avito_back_intership/internal/http-server/handlers/segment/delete_segment"
 	"avito_back_intership/internal/http-server/handlers/segment/segment_list"
 	"avito_back_intership/internal/http-server/handlers/segment/segment_users"
+	"avito_back_intership/internal/http-server/handlers/user/create_user"
+	"avito_back_intership/internal/http-server/handlers/user/user_list"
+	"avito_back_intership/internal/http-server/handlers/user_log"
 
 	"avito_back_intership/internal/lib/logger/sl"
 	"avito_back_intership/internal/storage/postgres"
@@ -92,16 +95,18 @@ func main() {
 	router.Get("/segment", segment_list.New(log, storage))
 
 	// // Создает юзера с 0 или более сегментами
-	// router.Post("/user", create_user.New(log, storage))
+	router.Post("/user", create_user.New(log, storage))
 	// // Удаляет юзера
 	// router.Delete("/user", _______.New(log, storage))
 	// // Получает сегменты юзера
-	// router.Get("/user", _______.New(log, storage))
+	// router.Get("/user/{segment}", _______.New(log, storage))
+	// // Получает всех пользователей
+	router.Get("/user", user_list.New(log, storage))
 	// // Добавляет сегмент юзеру
 	// router.Put("/user", _______.New(log, storage))
 
 	// // Выводит csv файл с логом для юзера
-	// router.Get("/log", _______.New(log, storage))
+	router.Get("/log/{user_id}", user_log.New(log, storage))
 
 	router.Get("/swagger/*", httpSwagger.WrapHandler)
 
