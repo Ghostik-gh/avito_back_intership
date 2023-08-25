@@ -80,15 +80,18 @@ func (s *Storage) CreateSegment(name string, amount string) error {
 	return nil
 }
 
-func (s *Storage) DeleteSegment(name string) (int64, error) {
+func (s *Storage) DeleteSegment(name string) error {
 	const op = "storage.postgres.DeleteSegment"
 
 	res, err := s.db.Exec(`DELETE FROM segment WHERE name=$1;`, name)
 	if err != nil {
-		return 0, fmt.Errorf("%s: %w", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
-	rows, _ := res.RowsAffected()
-	return rows, nil
+
+	if rows, _ := res.RowsAffected(); rows == 0 {
+		return fmt.Errorf("%s: %v", op, "nothing to delete")
+	}
+	return nil
 }
 
 func (s *Storage) CreateUser(user_id int) error {

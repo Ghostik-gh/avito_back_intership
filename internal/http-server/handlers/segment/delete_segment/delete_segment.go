@@ -23,7 +23,7 @@ type Response struct {
 
 //go:generate mockery --name=URLSaver
 type SegmentDeleter interface {
-	DeleteSegment(name string) (int64, error)
+	DeleteSegment(name string) error
 }
 
 func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
@@ -54,23 +54,15 @@ func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 
 			return
 		}
-		var rows int64
-		if rows, err = segmentDeleter.DeleteSegment(req.Segment); err != nil {
+		if err = segmentDeleter.DeleteSegment(req.Segment); err != nil {
 			log.Info("failed to delete segment", slog.String("segment", req.Segment))
 			render.JSON(w, r, resp.Error("failed to delete segment"))
 			return
 		}
-		if rows == 0 {
-			log.Info("nothing to delete")
-			render.JSON(w, r, Response{
-				Response: resp.Error("nothing to delete"),
-			})
-		} else {
-			log.Info("segment deleted")
-			render.JSON(w, r, Response{
-				Response: resp.OK(),
-			})
-		}
+		log.Info("segment deleted")
+		render.JSON(w, r, Response{
+			Response: resp.OK(),
+		})
 	}
 
 }
