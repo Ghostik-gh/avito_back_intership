@@ -38,14 +38,14 @@ const (
 	envProd  = "prod"
 )
 
-// @title           Avito Intership (Backend)
-// @version         1.0
+// @title			Avito Intership (Backend)
+// @version			1.0
 // @description		Segmentation for A_B tests
-// @contact.name   GhostikGH
-// @contact.url    https://t.me/GhostikGH
-// @contact.email  feodor200@mail.ru
-// @host      localhost:8080
-// @BasePath  /api/v1
+// @contact.name	GhostikGH
+// @contact.url	 	https://t.me/GhostikGH
+// @contact.email	feodor200@mail.ru
+// @host			localhost:8080
+// @BasePath		/api/v1
 func main() {
 	cfg := config.MustLoad()
 

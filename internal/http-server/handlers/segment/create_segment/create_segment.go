@@ -26,18 +26,18 @@ type Response struct {
 
 //go:generate mockery --name=URLSaver
 
-// @Summary Создание сегмента
-// @Tags Segment
-// @Description Создание сегмента
-// @ID segment-creation
-// @Accept  json
-// @Produce  json
-// @Param input body Segment true "segment name"
-// @Success 200 {object} userModel.TokenAccessModel "data"
-// @Failure 400,404 {object} httpModel.ResponseMessage
-// @Failure 500 {object} httpModel.ResponseMessage
-// @Failure default {object} httpModel.ResponseMessage
-// @Router /segment [post]
+// @Summary			Создание сегмента
+// @Tags			Segment
+// @Description		Создание сегмента
+// @ID				segment-creation
+// @Accept			json
+// @Produce			json
+// @Param			input	body		Segment						true	"segment name"
+// @Success			200		{object}	userModel.TokenAccessModel	"data"
+// @Failure			400,404	{object}	httpModel.ResponseMessage
+// @Failure			500		{object}	httpModel.ResponseMessage
+// @Failure			default	{object}	httpModel.ResponseMessage
+// @Router			/segment [post]
 type SegmentCreator interface {
 	CreateSegment(name string, amount string) error
 }
