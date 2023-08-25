@@ -3,7 +3,7 @@ host: localhost:8080
 info:
   contact:
     email: feodor200@mail.ru
-    name: Contacts
+    name: GhostikGH
     url: https://t.me/GhostikGH
   description: Segmentation for A_B tests
   title: Avito Intership (Backend)
