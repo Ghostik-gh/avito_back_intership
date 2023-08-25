@@ -3,6 +3,8 @@ package main
 import (
 	"avito_back_intership/internal/config"
 	"avito_back_intership/internal/http-server/handlers/segment/create_segment"
+	"avito_back_intership/internal/http-server/handlers/segment/delete_segment"
+	"avito_back_intership/internal/http-server/handlers/segment/segment_users"
 
 	"avito_back_intership/internal/lib/logger/sl"
 	"avito_back_intership/internal/storage/postgres"
@@ -51,14 +53,18 @@ func main() {
 	log.Debug("debug mod")
 
 	storage, err := postgres.New(cfg.StoragePath)
-	_ = storage
 	if err != nil {
 		log.Error("failed to init storage", sl.Err(err))
 		os.Exit(1)
 	}
-
 	log.Info("storage started success, tables created")
+	_ = storage
 
+	// err = storage.CreateSegment("ABC", "0")
+	// if err != nil {
+	// 	log.Error("failed to create segment", sl.Err(err))
+	// 	// os.Exit(1)
+	// }
 	router := chi.NewRouter()
 
 	router.Use(middleware.RequestID)
@@ -78,9 +84,11 @@ func main() {
 	// // Создает сегмент
 	router.Post("/segment", create_segment.New(log, storage))
 	// // Удаляет сегмент
-	// router.Delete("/segment", _______.New(log, storage))
+	router.Delete("/segment", delete_segment.New(log, storage))
 	// // Получает список пользователей в данном сегменте
-	// router.Get("/segment", _______.New(log, storage))
+	router.Get("/segment/{segment}", segment_users.New(log, storage))
+	// // Получает список всех сегментов
+	// router.Get("/segment/", segment_users.New(log, storage))
 
 	// // Создает юзера с 0 или более сегментами
 	// router.Post("/user", create_user.New(log, storage))
