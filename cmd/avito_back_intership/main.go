@@ -2,7 +2,12 @@ package main
 
 import (
 	"avito_back_intership/internal/config"
+	"avito_back_intership/internal/http-server/handlers/segment/create_segment"
+	"avito_back_intership/internal/http-server/handlers/user/create_user"
+
+	// create "avito_back_intership/internal/http-server/handlers/user/create"
 	"avito_back_intership/internal/lib/logger/sl"
+	"avito_back_intership/internal/storage/postgres"
 	"context"
 	"fmt"
 	"net/http"
@@ -47,12 +52,15 @@ func main() {
 	log.Info("starting slog")
 	log.Debug("debug mod")
 
-	// storage, err := sqlite.New(cfg.StoragePath)
-	// _ = storage
-	// if err != nil {
-	// 	log.Error("failed to init storage", sl.Err(err))
-	// 	os.Exit(1)
-	// }
+	storage, err := postgres.New(cfg.StoragePath)
+
+	log.Info("storage started success, tables created")
+
+	_ = storage
+	if err != nil {
+		log.Error("failed to init storage", sl.Err(err))
+		os.Exit(1)
+	}
 
 	router := chi.NewRouter()
 
@@ -66,19 +74,19 @@ func main() {
 	// 	r.Use(middleware.BasicAuth("avito_back_intership", map[string]string{
 	// 		cfg.HTTPServer.User: cfg.HTTPServer.Password,
 	// 	}))
-	// 	r.Post("/", save.New(log, storage))
-	// 	r.Delete("/{alias}", delete.New(log, storage))
+	// r.Post("/", save.New(log, storage))
+	// r.Delete("/{alias}", delete.New(log, storage))
 	// })
 
 	// // Создает сегмент
-	// router.Post("/segment", _______.New(log, storage))
+	router.Post("/segment", create_segment.New(log, storage))
 	// // Удаляет сегмент
 	// router.Delete("/segment", _______.New(log, storage))
 	// // Получает список пользователей в данном сегменте
 	// router.Get("/segment", _______.New(log, storage))
 
 	// // Создает юзера с 0 или более сегментами
-	// router.Post("/user", _______.New(log, storage))
+	router.Post("/user", create_user.New(log, storage))
 	// // Удаляет юзера
 	// router.Delete("/user", _______.New(log, storage))
 	// // Получает сегменты юзера

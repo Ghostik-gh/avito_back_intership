@@ -1,19 +1,19 @@
-package save
+package create_segment
 
 import (
+	"avito_back_intership/internal/lib/logger/sl"
+	"avito_back_intership/internal/lib/random"
+	"avito_back_intership/internal/storage"
 	"errors"
 	"net/http"
 
 	"log/slog"
 
+	resp "avito_back_intership/internal/lib/api/response"
+
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
-
-	resp "avito_back_intership/internal/lib/api/response"
-	"avito_back_intership/internal/lib/logger/sl"
-	"avito_back_intership/internal/lib/random"
-	"avito_back_intership/internal/storage"
 )
 
 type Request struct {
@@ -30,7 +30,7 @@ const aliasLength = 6
 
 //go:generate mockery --name=URLSaver
 type URLSaver interface {
-	SaveURL(urlLong string, alias string) error
+	CreateSegment(name string, amount float64) error
 }
 
 func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
@@ -69,7 +69,7 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 			alias = random.GenerateAlias(aliasLength)
 		}
 
-		if err := urlSaver.SaveURL(req.URL, alias); err != nil {
+		if err := urlSaver.CreateSegment(req.URL, 0); err != nil {
 			if errors.Is(err, storage.ErrURLExists) {
 				log.Info("url already exists", slog.String("url", req.URL))
 				render.JSON(w, r, resp.Error("url already exists"))

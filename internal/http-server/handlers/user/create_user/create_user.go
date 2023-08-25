@@ -1,19 +1,19 @@
-package save
+package create_user
 
 import (
+	"avito_back_intership/internal/lib/logger/sl"
+	"avito_back_intership/internal/lib/random"
+	"avito_back_intership/internal/storage"
 	"errors"
 	"net/http"
 
 	"log/slog"
 
+	resp "avito_back_intership/internal/lib/api/response"
+
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
-
-	resp "avito_back_intership/internal/lib/api/response"
-	"avito_back_intership/internal/lib/logger/sl"
-	"avito_back_intership/internal/lib/random"
-	"avito_back_intership/internal/storage"
 )
 
 type Request struct {
@@ -30,7 +30,7 @@ const aliasLength = 6
 
 //go:generate mockery --name=URLSaver
 type URLSaver interface {
-	SaveURL(urlLong string, alias string) error
+	CreateUser(name string, amount float64) error
 }
 
 func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {

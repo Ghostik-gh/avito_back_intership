@@ -1,15 +1,16 @@
 package delete
 
 import (
+	resp "avito_back_intership/internal/lib/api/response"
+	"avito_back_intership/internal/storage"
 	"errors"
 	"net/http"
-	resp "url-shortener/internal/lib/api/response"
-	"url-shortener/internal/storage"
+
+	"log/slog"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"golang.org/x/exp/slog"
 )
 
 type URLDeleter interface {

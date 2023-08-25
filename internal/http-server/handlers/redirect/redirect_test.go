@@ -1,12 +1,12 @@
 package redirect_test
 
 import (
+	"avito_back_intership/internal/http-server/handlers/redirect"
+	"avito_back_intership/internal/http-server/handlers/redirect/mocks"
+	"avito_back_intership/internal/lib/api"
+	"avito_back_intership/internal/lib/api/slogdiscard"
 	"net/http/httptest"
 	"testing"
-	"url-shortener/internal/http-server/handlers/redirect"
-	"url-shortener/internal/http-server/handlers/redirect/mocks"
-	"url-shortener/internal/lib/api"
-	"url-shortener/internal/lib/api/slogdiscard"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/require"
