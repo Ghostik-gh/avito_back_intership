@@ -135,7 +135,7 @@ func (s *Storage) DeleteUserSegment(user_id int, segment string) error {
 
 func (s *Storage) CreateLog(user_id int, seg_name, opertaion string) error {
 	const op = "storage.postgres.CreateLog"
-	_, err := s.db.Exec(`INSERT INTO user_segment VALUES ($1, $2, $3, now());`, user_id, seg_name, opertaion)
+	_, err := s.db.Exec(`INSERT INTO log VALUES ($1, $2, $3, now());`, user_id, seg_name, opertaion)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
@@ -144,7 +144,7 @@ func (s *Storage) CreateLog(user_id int, seg_name, opertaion string) error {
 
 func (s *Storage) UserInfo(user_id int) (*sql.Rows, error) {
 	const op = "storage.postgres.UserInfo"
-	data, err := s.db.Query(`SELECT * FROM user_segment WHERE user_id=$1 `, user_id)
+	data, err := s.db.Query(`SELECT seg_name FROM user_segment WHERE user_id=$1 `, user_id)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
@@ -179,7 +179,7 @@ func (s *Storage) SegmentInfo(segment string) (*sql.Rows, error) {
 }
 func (s *Storage) SegmentList() (*sql.Rows, error) {
 	const op = "storage.postgres.SegmentList"
-	data, err := s.db.Query(`SELECT * FROM segment`)
+	data, err := s.db.Query(`SELECT name FROM segment`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
