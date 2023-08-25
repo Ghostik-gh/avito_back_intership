@@ -1,7 +1,8 @@
 CREATE TABLE
     "segment" (
         "name" VARCHAR(255) NOT NULL UNIQUE,
-        "amount" FLOAT,
+        "amount" INTEGER,
+        "percentage" FLOAT,
         CONSTRAINT "segments_pk" PRIMARY KEY ("name")
     )
 WITH (OIDS = FALSE);
