@@ -7,7 +7,9 @@ import (
 	"avito_back_intership/internal/http-server/handlers/segment/segment_list"
 	"avito_back_intership/internal/http-server/handlers/segment/segment_users"
 	"avito_back_intership/internal/http-server/handlers/user/create_user"
+	"avito_back_intership/internal/http-server/handlers/user/delete_user"
 	"avito_back_intership/internal/http-server/handlers/user/user_list"
+	"avito_back_intership/internal/http-server/handlers/user/user_segments"
 	"avito_back_intership/internal/http-server/handlers/user_log"
 
 	"avito_back_intership/internal/lib/logger/sl"
@@ -46,7 +48,6 @@ const (
 
 // @host      localhost:8080
 // @BasePath  /api/v1
-
 func main() {
 	cfg := config.MustLoad()
 
@@ -62,13 +63,7 @@ func main() {
 		os.Exit(1)
 	}
 	log.Info("storage started success, tables created")
-	_ = storage
 
-	// err = storage.CreateSegment("ABC", "0")
-	// if err != nil {
-	// 	log.Error("failed to create segment", sl.Err(err))
-	// 	// os.Exit(1)
-	// }
 	router := chi.NewRouter()
 
 	router.Use(middleware.RequestID)
@@ -77,40 +72,31 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	// router.Route("/url", func(r chi.Router) {
-	// 	r.Use(middleware.BasicAuth("avito_back_intership", map[string]string{
-	// 		cfg.HTTPServer.User: cfg.HTTPServer.Password,
-	// 	}))
-	// r.Post("/", save.New(log, storage))
-	// r.Delete("/{alias}", delete.New(log, storage))
-	// })
-
-	// // Создает сегмент
+	// Создает сегмент
 	router.Post("/segment", create_segment.New(log, storage))
-	// // Удаляет сегмент
+	// Удаляет сегмент
 	router.Delete("/segment", delete_segment.New(log, storage))
-	// // Получает список пользователей в данном сегменте
+	// Получает список пользователей в данном сегменте
 	router.Get("/segment/{segment}", segment_users.New(log, storage))
-	// // Получает список всех сегментов
+	// Получает список всех сегментов
 	router.Get("/segment", segment_list.New(log, storage))
 
-	// // Создает юзера с 0 или более сегментами
+	// Создает юзера с 0 или более сегментами тут же происходит удаление
 	router.Post("/user", create_user.New(log, storage))
-	// // Удаляет юзера
-	// router.Delete("/user", _______.New(log, storage))
-	// // Получает сегменты юзера
-	// router.Get("/user/{segment}", _______.New(log, storage))
-	// // Получает всех пользователей
+	// Удаляет юзера
+	router.Delete("/user", delete_user.New(log, storage))
+	// Получает сегменты юзера
+	router.Get("/user/{user_id}", user_segments.New(log, storage))
+	// Получает всех пользователей
 	router.Get("/user", user_list.New(log, storage))
-	// // Добавляет сегмент юзеру
-	// router.Put("/user", _______.New(log, storage))
 
-	// // Выводит csv файл с логом для юзера
+	// Выводит csv файл с логом для юзера
 	router.Get("/log/{user_id}", user_log.New(log, storage))
 
 	router.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	// Graceful shutdown
+
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
