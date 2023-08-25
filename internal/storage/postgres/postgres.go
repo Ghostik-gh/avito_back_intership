@@ -104,7 +104,7 @@ func (s *Storage) CreateUser(user_id int) error {
 	return nil
 }
 
-func (s *Storage) DeleteUser(user_id int) error {
+func (s *Storage) DeleteUser(user_id string) error {
 	const op = "storage.postgres.DeleteUser"
 
 	_, err := s.db.Exec(`DELETE FROM people WHERE user_id=$1;`, user_id)
