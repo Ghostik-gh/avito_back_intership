@@ -51,14 +51,13 @@ func main() {
 	log.Debug("debug mod")
 
 	storage, err := postgres.New(cfg.StoragePath)
-
-	log.Info("storage started success, tables created")
-
 	_ = storage
 	if err != nil {
 		log.Error("failed to init storage", sl.Err(err))
 		os.Exit(1)
 	}
+
+	log.Info("storage started success, tables created")
 
 	router := chi.NewRouter()
 
@@ -122,7 +121,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	// TODO: Close Storage
+	storage.Close()
+	log.Info("storage closed success")
 
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Error("failed to stop server", sl.Err(err))
