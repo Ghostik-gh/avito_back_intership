@@ -3,9 +3,7 @@ package main
 import (
 	"avito_back_intership/internal/config"
 	"avito_back_intership/internal/http-server/handlers/segment/create_segment"
-	"avito_back_intership/internal/http-server/handlers/user/create_user"
 
-	// create "avito_back_intership/internal/http-server/handlers/user/create"
 	"avito_back_intership/internal/lib/logger/sl"
 	"avito_back_intership/internal/storage/postgres"
 	"context"
@@ -86,7 +84,7 @@ func main() {
 	// router.Get("/segment", _______.New(log, storage))
 
 	// // Создает юзера с 0 или более сегментами
-	router.Post("/user", create_user.New(log, storage))
+	// router.Post("/user", create_user.New(log, storage))
 	// // Удаляет юзера
 	// router.Delete("/user", _______.New(log, storage))
 	// // Получает сегменты юзера

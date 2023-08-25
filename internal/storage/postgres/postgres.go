@@ -21,16 +21,15 @@ func New(storagePath string) (*Storage, error) {
 	_, err = db.Exec(`
 		CREATE TABLE
 		"segment" (
-			"seg_id" serial NOT NULL,
 			"name" VARCHAR(255) NOT NULL UNIQUE,
 			"amount" FLOAT,
-			CONSTRAINT "segments_pk" PRIMARY KEY ("seg_id")
+			CONSTRAINT "segments_pk" PRIMARY KEY ("name")
 		)
 		WITH (OIDS = FALSE);
 
 		CREATE TABLE
-			"user" (
-				"user_id" serial NOT NULL,
+			"people" (
+				"user_id" integer NOT NULL,
 				CONSTRAINT "user_pk" PRIMARY KEY ("user_id")
 			)
 		WITH (OIDS = FALSE);
@@ -38,27 +37,28 @@ func New(storagePath string) (*Storage, error) {
 		CREATE TABLE
 			"user_segment" (
 				"user_id" integer NOT NULL,
-				"seg_id" integer NOT NULL,
-				"duration" TIMESTAMP
+				"seg_name" VARCHAR(255) NOT NULL,
+				"delete_time" TIMESTAMPTZ
 			)
 		WITH (OIDS = FALSE);
 
 		CREATE TABLE
 			"log" (
 				"user_id" integer NOT NULL,
-				"seg_id" integer NOT NULL,
+				"seg_name" VARCHAR(255) NOT NULL,
 				"operation" VARCHAR(255) NOT NULL,
-				"op_time" TIMESTAMP NOT NULL
+				"op_time" TIMESTAMPTZ NOT NULL
 			)
 		WITH (OIDS = FALSE);
 
 		ALTER TABLE "user_segment"
 		ADD
-			CONSTRAINT "user_segment_fk0" FOREIGN KEY ("user_id") REFERENCES "user"("user_id");
+			CONSTRAINT "user_segment_fk0" FOREIGN KEY ("user_id") REFERENCES "people"("user_id") ON DELETE CASCADE;
 
 		ALTER TABLE "user_segment"
 		ADD
-			CONSTRAINT "user_segment_fk1" FOREIGN KEY ("seg_id") REFERENCES "segment"("seg_id");`)
+			CONSTRAINT "user_segment_fk1" FOREIGN KEY ("seg_name") REFERENCES "segment"("seg_name") ON DELETE CASCADE;
+			`)
 
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -69,71 +69,68 @@ func New(storagePath string) (*Storage, error) {
 
 func (s *Storage) CreateSegment(name string, amount float64) error {
 	const op = "storage.postgres.CreateSegment"
-	_, err := s.db.Exec(`
-	INSERT INTO segment (name) VALUES ('?');`, name)
 
+	_, err := s.db.Exec(`INSERT INTO segment (name, amount) VALUES ('?', ?);`, name, amount)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
-
 	return nil
 }
 
-// func (s *Storage) SaveURL(urlLong string, alias string) error {
-// 	const op = "storage.postgres.SaveURL"
+func (s *Storage) DeleteSegment(name string) error {
+	const op = "storage.postgres.DeleteSegment"
 
-// 	query, err := s.db.Prepare(context.Background(), "save url", "INSERT INTO url(url, alias) VALUES(?, ?)")
-// 	if err != nil {
-// 		return fmt.Errorf("%s: %w", op, err)
-// 	}
-// 	fmt.Printf("query.Fields: %v\n", query.Fields)
-// 	// _, err = query.Exec(urlLong, alias)
-// 	// if err != nil {
-// 	// 	return fmt.Errorf("%s: %w", op, err)
-// 	// }
-// 	return nil
+	_, err := s.db.Exec(`DELETE FROM segment WHERE name='?';`, name)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
+}
 
-// }
+func (s *Storage) CreateUser(user_id int) error {
+	const op = "storage.postgres.CreateUser"
 
-// func (s *Storage) GetURL(alias string) (string, error) {
-// 	const op = "storage.postgres.GetURL"
+	_, err := s.db.Exec(`INSERT INTO people VALUES (?);`, user_id)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
+}
 
-// 	query, err := s.db.Prepare("SELECT url FROM url WHERE alias=?")
-// 	if err != nil {
-// 		return "", fmt.Errorf("%s: %w", op, err)
-// 	}
-// 	var url string
+func (s *Storage) DeleteUser(user_id int) error {
+	const op = "storage.postgres.DeleteUser"
 
-// 	err = query.QueryRow(alias).Scan(&url)
+	_, err := s.db.Exec(`DELETE FROM people WHERE user_id=?;`, user_id)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
+}
 
-// 	if err != nil {
-// 		if errors.Is(err, sql.ErrNoRows) {
-// 			return "", storage.ErrURLNotFound
-// 		}
-// 		return "", fmt.Errorf("%s: %w", op, err)
-// 	}
+func (s *Storage) CreateUserSegment(user_id int, segment string) error {
+	const op = "storage.postgres.CreateUserSegment"
 
-// 	return url, nil
-// }
+	_, err := s.db.Exec(`INSERT INTO user_segment (user_id, seg_name) VALUES (?, '?');`, user_id, segment)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
+}
 
-// func (s *Storage) DeleteURL(alias string) error {
-// 	const op = "storage.postgres.DeleteURL"
+func (s *Storage) DeleteUserSegment(user_id int, segment string) error {
+	const op = "storage.postgres.DeleteUserSegment"
+	_, err := s.db.Exec(`DELETE FROM user_segment WHERE user_id=? AND seg_name='?';`, user_id, segment)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
+}
 
-// 	query, err := s.db.Prepare("DELETE FROM url WHERE alias=?")
-// 	if err != nil {
-// 		return fmt.Errorf("%s: %w", op, err)
-// 	}
-// 	result, err := query.Exec(alias)
-// 	if err != nil {
-// 		if errors.Is(err, storage.ErrURLNotFound) {
-// 			return storage.ErrURLNotFound
-// 		}
-// 		return fmt.Errorf("%s: %w", op, err)
-// 	}
-
-// 	if rows, _ := result.RowsAffected(); rows == 0 {
-// 		return fmt.Errorf("%s: %v", op, "nothing to delete")
-// 	}
-
-// 	return nil
-// }
+func (s *Storage) CreateLog(user_id int, seg_name, opertaion string) error {
+	const op = "storage.postgres.CreateLog"
+	_, err := s.db.Exec(`INSERT INTO user_segment VALUES (?, '?', '?', now());`, user_id, seg_name, opertaion)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
+}
