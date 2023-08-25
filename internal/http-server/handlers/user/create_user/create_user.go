@@ -2,9 +2,6 @@ package create_user
 
 import (
 	"avito_back_intership/internal/lib/logger/sl"
-	"avito_back_intership/internal/lib/random"
-	"avito_back_intership/internal/storage"
-	"errors"
 	"net/http"
 
 	"log/slog"
@@ -17,25 +14,21 @@ import (
 )
 
 type Request struct {
-	URL   string `json:"url" validate:"required,url"`
-	Alias string `json:"alias,omitempty"`
+	UserID string `json:"user_id" validate:"required,number"`
 }
 
 type Response struct {
 	resp.Response
-	Alias string `json:"alias,omitempty"`
 }
-
-const aliasLength = 6
 
 //go:generate mockery --name=URLSaver
-type URLSaver interface {
-	CreateUser(name string, amount float64) error
+type UserCreater interface {
+	CreateUser(name string) error
 }
 
-func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
+func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "handlers.url.save.New"
+		const op = "handlers.user.create_user.New"
 		log = log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),
@@ -46,9 +39,7 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 		err := render.DecodeJSON(r.Body, &req)
 		if err != nil {
 			log.Error("failed to decode body request", sl.Err(err))
-
 			render.JSON(w, r, resp.Error("failed to decode request"))
-
 			return
 		}
 
@@ -56,35 +47,20 @@ func New(log *slog.Logger, urlSaver URLSaver) http.HandlerFunc {
 
 		if err := validator.New().Struct(req); err != nil {
 			validateErr := err.(validator.ValidationErrors)
-
 			log.Error("invalid request", sl.Err(err))
-
 			render.JSON(w, r, resp.ValidationError(validateErr))
-
 			return
 		}
 
-		alias := req.Alias
-		if alias == "" {
-			alias = random.GenerateAlias(aliasLength)
-		}
-
-		if err := urlSaver.SaveURL(req.URL, alias); err != nil {
-			if errors.Is(err, storage.ErrURLExists) {
-				log.Info("url already exists", slog.String("url", req.URL))
-				render.JSON(w, r, resp.Error("url already exists"))
-				return
-			}
-
-			log.Info("failed to add url", slog.String("url", req.URL))
-			render.JSON(w, r, resp.Error("failed to add url"))
+		if err := userCreater.CreateUser(req.UserID); err != nil {
+			log.Info("failed to create user", slog.String("user_id", req.UserID))
+			render.JSON(w, r, resp.Error("failed to create user"))
 			return
 		}
-		log.Info("url added")
 
+		log.Info("user created")
 		render.JSON(w, r, Response{
 			Response: resp.OK(),
-			Alias:    alias,
 		})
 	}
 
