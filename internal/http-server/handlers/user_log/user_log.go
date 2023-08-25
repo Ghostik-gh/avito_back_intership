@@ -26,22 +26,22 @@ type UserLogGetter interface {
 
 func New(log *slog.Logger, userLogGetter UserLogGetter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "handlers.segment.user_log_getter.New"
+		const op = "handlers.user_log.getter.New"
 		log = log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		user_str := chi.URLParam(r, "user_id")
+		userStr := chi.URLParam(r, "user_id")
 
-		user_id, err := strconv.Atoi(user_str)
+		userID, err := strconv.Atoi(userStr)
 		if err != nil {
 			log.Error("user id not number")
 			render.JSON(w, r, resp.Error("user id not number"))
 			return
 		}
 
-		rows, err := userLogGetter.UserLog(user_id)
+		rows, err := userLogGetter.UserLog(userID)
 		if err != nil {
 			log.Error("failed to get user's log")
 			render.JSON(w, r, resp.Error("failed to get user's log"))

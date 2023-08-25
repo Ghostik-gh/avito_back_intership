@@ -28,7 +28,7 @@ type UserDeleter interface {
 
 func New(log *slog.Logger, userDeleter UserDeleter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "handlers.segment.user_deleter.New"
+		const op = "handlers.user.deleter.New"
 		log = log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),

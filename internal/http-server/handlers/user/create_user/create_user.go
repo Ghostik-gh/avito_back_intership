@@ -28,12 +28,12 @@ type Response struct {
 
 //go:generate mockery --name=URLSaver
 type UserCreater interface {
-	CreateUser(user_id int) error
-	CreateUserSegment(user_id int, segment string) error
-	DeleteUserSegment(user_id int, segment string) error
-	CreateLog(user_id int, seg_name, opertaion string) error
+	CreateUser(userID int) error
+	CreateUserSegment(userID int, segment string) error
+	DeleteUserSegment(userID int, segment string) error
+	CreateLog(userID int, seg_name, opertaion string) error
 	SegmentList() (*sql.Rows, error)
-	UserInfo(user_id int) (*sql.Rows, error)
+	UserInfo(userID int) (*sql.Rows, error)
 }
 
 func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
@@ -62,34 +62,31 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 			return
 		}
 
-		user_id, err := strconv.Atoi(req.UserID)
+		userID, err := strconv.Atoi(req.UserID)
 		if err != nil {
 			log.Error("user id not number")
 			render.JSON(w, r, resp.Error("user id not number"))
 			return
 		}
 
-		if err := userCreater.CreateUser(user_id); err != nil {
+		if err := userCreater.CreateUser(userID); err != nil {
 			log.Info("user already exists")
-			// log.Error("failed to create user", slog.String("user_id", req.UserID))
-			// render.JSON(w, r, resp.Error("failed to create user"))
-			// return
 		} else {
 			log.Info("user created")
 		}
 
-		user_data, err := userCreater.UserInfo(user_id)
+		userData, err := userCreater.UserInfo(userID)
 		if err != nil {
 			log.Error("failed to get user info", slog.String("user_id", req.UserID))
 			render.JSON(w, r, resp.Error("failed to get user info"))
 			return
 		}
 
-		var user_segment_list []string
-		for user_data.Next() {
-			var one_row string
-			user_data.Scan(&one_row)
-			user_segment_list = append(user_segment_list, one_row)
+		var userSegmentList []string
+		for userData.Next() {
+			var row string
+			userData.Scan(&row)
+			userSegmentList = append(userSegmentList, row)
 		}
 
 		segments, err := userCreater.SegmentList()
@@ -98,42 +95,42 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 			render.JSON(w, r, resp.Error("failed to get segments info"))
 			return
 		}
-		var valid_segments []string
+		var validSegments []string
 		for segments.Next() {
-			var one_row string
-			segments.Scan(&one_row)
+			var row string
+			segments.Scan(&row)
 			if err != nil {
 				log.Error(err.Error())
 			}
-			valid_segments = append(valid_segments, one_row)
+			validSegments = append(validSegments, row)
 		}
 
 		for _, v := range req.AddedSeg {
-			if slices.Contains(user_segment_list, v) {
+			if slices.Contains(userSegmentList, v) {
 				continue
 			}
-			if slices.Contains(valid_segments, v) {
-				err := userCreater.CreateUserSegment(user_id, v)
+			if slices.Contains(validSegments, v) {
+				err := userCreater.CreateUserSegment(userID, v)
 				if err != nil {
 					log.Error(err.Error())
 				}
-				err = userCreater.CreateLog(user_id, v, "add")
+				err = userCreater.CreateLog(userID, v, "add")
 				if err != nil {
 					log.Error(err.Error())
 				}
-				user_segment_list = append(user_segment_list, v)
+				userSegmentList = append(userSegmentList, v)
 			} else {
 				log.Error("failed add segment to user", slog.String("segment", v))
 			}
 		}
 
 		for _, v := range req.RemoveSeg {
-			if slices.Contains(user_segment_list, v) {
-				err := userCreater.DeleteUserSegment(user_id, v)
+			if slices.Contains(userSegmentList, v) {
+				err := userCreater.DeleteUserSegment(userID, v)
 				if err != nil {
 					log.Error(err.Error())
 				}
-				userCreater.CreateLog(user_id, v, "remove")
+				userCreater.CreateLog(userID, v, "remove")
 			}
 		}
 

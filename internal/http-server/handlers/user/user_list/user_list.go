@@ -24,7 +24,7 @@ type UserListGetter interface {
 
 func New(log *slog.Logger, userListGetter UserListGetter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "handlers.segment.usert_list_getter.New"
+		const op = "handlers.user.list_getter.New"
 		log = log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),
