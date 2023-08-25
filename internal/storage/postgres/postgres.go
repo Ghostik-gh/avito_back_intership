@@ -148,6 +148,15 @@ func (s *Storage) UserInfo(user_id int) (*sql.Rows, error) {
 	return data, nil
 }
 
+func (s *Storage) UserList() (*sql.Rows, error) {
+	const op = "storage.postgres.UserList"
+	data, err := s.db.Query(`SELECT * FROM people`)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return data, nil
+}
+
 func (s *Storage) UserLog(user_id int) (*sql.Rows, error) {
 	const op = "storage.postgres.UserLog"
 	data, err := s.db.Query(`SELECT * FROM log WHERE user_id=$1`, user_id)
@@ -160,6 +169,14 @@ func (s *Storage) UserLog(user_id int) (*sql.Rows, error) {
 func (s *Storage) SegmentInfo(segment string) (*sql.Rows, error) {
 	const op = "storage.postgres.SegmentInfo"
 	data, err := s.db.Query(`SELECT * FROM user_segment WHERE seg_name=$1 `, segment)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return data, nil
+}
+func (s *Storage) SegmentList() (*sql.Rows, error) {
+	const op = "storage.postgres.SegmentList"
+	data, err := s.db.Query(`SELECT * FROM segment`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}

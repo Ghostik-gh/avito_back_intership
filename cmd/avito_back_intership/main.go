@@ -4,6 +4,7 @@ import (
 	"avito_back_intership/internal/config"
 	"avito_back_intership/internal/http-server/handlers/segment/create_segment"
 	"avito_back_intership/internal/http-server/handlers/segment/delete_segment"
+	"avito_back_intership/internal/http-server/handlers/segment/segment_list"
 	"avito_back_intership/internal/http-server/handlers/segment/segment_users"
 
 	"avito_back_intership/internal/lib/logger/sl"
@@ -88,7 +89,7 @@ func main() {
 	// // Получает список пользователей в данном сегменте
 	router.Get("/segment/{segment}", segment_users.New(log, storage))
 	// // Получает список всех сегментов
-	// router.Get("/segment/", segment_users.New(log, storage))
+	router.Get("/segment", segment_list.New(log, storage))
 
 	// // Создает юзера с 0 или более сегментами
 	// router.Post("/user", create_user.New(log, storage))
