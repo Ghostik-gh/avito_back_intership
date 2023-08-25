@@ -3,6 +3,7 @@ package create_user
 import (
 	"avito_back_intership/internal/lib/logger/sl"
 	"net/http"
+	"strconv"
 
 	"log/slog"
 
@@ -23,7 +24,7 @@ type Response struct {
 
 //go:generate mockery --name=URLSaver
 type UserCreater interface {
-	CreateUser(name string) error
+	CreateUser(user_id int) error
 }
 
 func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
@@ -52,8 +53,15 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 			return
 		}
 
-		if err := userCreater.CreateUser(req.UserID); err != nil {
-			log.Info("failed to create user", slog.String("user_id", req.UserID))
+		user_id, err := strconv.Atoi(req.UserID)
+		if err != nil {
+			log.Error("user id not number")
+			render.JSON(w, r, resp.Error("user id not number"))
+			return
+		}
+
+		if err := userCreater.CreateUser(user_id); err != nil {
+			log.Error("failed to create user", slog.String("user_id", req.UserID))
 			render.JSON(w, r, resp.Error("failed to create user"))
 			return
 		}

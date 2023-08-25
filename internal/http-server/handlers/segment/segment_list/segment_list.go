@@ -37,7 +37,7 @@ func New(log *slog.Logger, segmentListGetter SegmentListGetter) http.HandlerFunc
 			return
 		}
 
-		err = csv.CreateCSV(log, "1.csv", rows)
+		err = csv.CreateCSV(log, "segments.csv", rows)
 		if err != nil {
 			log.Error("failed to create csv")
 			render.JSON(w, r, resp.Error("failed to create csv"))

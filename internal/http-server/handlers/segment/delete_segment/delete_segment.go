@@ -55,7 +55,7 @@ func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 			return
 		}
 		if err = segmentDeleter.DeleteSegment(req.Segment); err != nil {
-			log.Info("failed to delete segment", slog.String("segment", req.Segment))
+			log.Error("failed to delete segment", slog.String("segment", req.Segment))
 			render.JSON(w, r, resp.Error("failed to delete segment"))
 			return
 		}

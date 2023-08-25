@@ -60,11 +60,11 @@ func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 
 		if err := segmentCreator.CreateSegment(req.Segment, "0"); err != nil {
 			if errors.Is(err, storage.ErrSegmentExists) {
-				log.Info(storage.ErrSegmentExists.Error(), slog.String("segment", req.Segment))
+				log.Error(storage.ErrSegmentExists.Error(), slog.String("segment", req.Segment))
 				render.JSON(w, r, resp.Error(storage.ErrSegmentExists.Error()))
 				return
 			}
-			log.Info("failed to create segment", slog.String("segment", req.Segment))
+			log.Error("failed to create segment", slog.String("segment", req.Segment))
 			render.JSON(w, r, resp.Error("failed to create segment"))
 			return
 		}
