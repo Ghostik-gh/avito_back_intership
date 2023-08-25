@@ -1,9 +1,7 @@
-package create_segment
+package delete_segment
 
 import (
 	"avito_back_intership/internal/lib/logger/sl"
-	"avito_back_intership/internal/storage"
-	"errors"
 	"net/http"
 
 	"log/slog"
@@ -17,7 +15,6 @@ import (
 
 type Request struct {
 	Segment string `json:"segment" validate:"required"`
-	Amount  string `json:"amount,omitempty"`
 }
 
 type Response struct {
@@ -25,13 +22,13 @@ type Response struct {
 }
 
 //go:generate mockery --name=URLSaver
-type SegmentCreator interface {
-	CreateSegment(name string, amount string) error
+type SegmentDeleter interface {
+	DeleteSegment(name string) (int64, error)
 }
 
-func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
+func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		const op = "handlers.segment.create_segment.New"
+		const op = "handlers.segment.segment_deleter.New"
 		log = log.With(
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),
@@ -57,22 +54,23 @@ func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 
 			return
 		}
-
-		if err := segmentCreator.CreateSegment(req.Segment, "0"); err != nil {
-			if errors.Is(err, storage.ErrSegmentExists) {
-				log.Info(storage.ErrSegmentExists.Error(), slog.String("segment", req.Segment))
-				render.JSON(w, r, resp.Error(storage.ErrSegmentExists.Error()))
-				return
-			}
-			log.Info("failed to create segment", slog.String("segment", req.Segment))
-			render.JSON(w, r, resp.Error("failed to create segment"))
+		var rows int64
+		if rows, err = segmentDeleter.DeleteSegment(req.Segment); err != nil {
+			log.Info("failed to delete segment", slog.String("segment", req.Segment))
+			render.JSON(w, r, resp.Error("failed to delete segment"))
 			return
 		}
-		log.Info("segment created")
-
-		render.JSON(w, r, Response{
-			Response: resp.OK(),
-		})
+		if rows == 0 {
+			log.Info("nothing to delete")
+			render.JSON(w, r, Response{
+				Response: resp.Error("nothing to delete"),
+			})
+		} else {
+			log.Info("segment deleted")
+			render.JSON(w, r, Response{
+				Response: resp.OK(),
+			})
+		}
 	}
 
 }
