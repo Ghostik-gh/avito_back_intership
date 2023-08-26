@@ -1,5 +1,14 @@
-basePath: /api/v1
-host: localhost:8080
+definitions:
+  create_segment.Request:
+    properties:
+      amount:
+        type: string
+      segment:
+        type: string
+    required:
+    - segment
+    type: object
+host: localhost:8002
 info:
   contact:
     email: feodor200@mail.ru
@@ -8,5 +17,24 @@ info:
   description: Segmentation for A_B tests
   title: Avito Intership (Backend)
   version: "1.0"
-paths: {}
+paths:
+  /segment:
+    post:
+      consumes:
+      - application/json
+      description: Создание сегмента
+      operationId: segment-creation
+      parameters:
+      - description: segment name
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/create_segment.Request'
+      produces:
+      - application/json
+      responses: {}
+      summary: Создание сегмента
+      tags:
+      - Segment
 swagger: "2.0"

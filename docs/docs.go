@@ -19,14 +19,59 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/segment": {
+            "post": {
+                "description": "Создание сегмента",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Segment"
+                ],
+                "summary": "Создание сегмента",
+                "operationId": "segment-creation",
+                "parameters": [
+                    {
+                        "description": "segment name",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/create_segment.Request"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "create_segment.Request": {
+            "type": "object",
+            "required": [
+                "segment"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "string"
+                },
+                "segment": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/api/v1",
+	Host:             "localhost:8002",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Avito Intership (Backend)",
 	Description:      "Segmentation for A_B tests",
