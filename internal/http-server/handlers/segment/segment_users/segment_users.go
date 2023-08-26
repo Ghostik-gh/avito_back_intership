@@ -62,9 +62,9 @@ func New(log *slog.Logger, segmentGetter SegmentGetter) http.HandlerFunc {
 
 		var userList []string
 		for rows.Next() {
-			var one_row string
-			rows.Scan(&one_row)
-			userList = append(userList, one_row)
+			var tmp string
+			rows.Scan(&tmp)
+			userList = append(userList, tmp)
 		}
 
 		render.JSON(w, r, Response{

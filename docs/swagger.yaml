@@ -6,6 +6,28 @@ definitions:
       status:
         type: string
     type: object
+  create_user.Request:
+    properties:
+      addedSeg:
+        items:
+          type: string
+        type: array
+      removeSeg:
+        items:
+          type: string
+        type: array
+      userID:
+        type: string
+    required:
+    - userID
+    type: object
+  create_user.Response:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+    type: object
   delete_segment.Response:
     properties:
       error:
@@ -53,6 +75,13 @@ definitions:
           type: string
         type: array
     type: object
+  user_log.Response:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+    type: object
   user_segments.Response:
     properties:
       error:
@@ -74,6 +103,30 @@ info:
   title: Avito Intership (Backend)
   version: "1.0"
 paths:
+  /log/{user_id}:
+    get:
+      description: Лог пользователя за все время
+      operationId: user-log
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_log.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/user_log.Response'
+      summary: Лог пользователя
+      tags:
+      - Log
   /segment:
     get:
       consumes:
@@ -193,6 +246,33 @@ paths:
           schema:
             $ref: '#/definitions/user_list.Response'
       summary: Получения списка всех пользователей
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Изменяет состояние сегментов у пользователя, если пользователя
+        нет, то он созадется
+      operationId: create-user
+      parameters:
+      - description: user update data
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/create_user.Request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/create_user.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/create_user.Response'
+      summary: Изменение сегментов у одного пользователя
       tags:
       - User
   /user/{user_id}:

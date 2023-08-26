@@ -20,6 +20,42 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/log/{user_id}": {
+            "get": {
+                "description": "Лог пользователя за все время",
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Log"
+                ],
+                "summary": "Лог пользователя",
+                "operationId": "user-log",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user_log.Response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/user_log.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/segment": {
             "get": {
                 "description": "Получения списка всех сегментов",
@@ -199,6 +235,45 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "description": "Изменяет состояние сегментов у пользователя, если пользователя нет, то он созадется",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Изменение сегментов у одного пользователя",
+                "operationId": "create-user",
+                "parameters": [
+                    {
+                        "description": "user update data",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/create_user.Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/create_user.Response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/create_user.Response"
+                        }
+                    }
+                }
             }
         },
         "/user/{user_id}": {
@@ -290,6 +365,40 @@ const docTemplate = `{
                 }
             }
         },
+        "create_user.Request": {
+            "type": "object",
+            "required": [
+                "userID"
+            ],
+            "properties": {
+                "addedSeg": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "removeSeg": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "create_user.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "delete_segment.Response": {
             "type": "object",
             "properties": {
@@ -360,6 +469,17 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                }
+            }
+        },
+        "user_log.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
                 }
             }
         },
