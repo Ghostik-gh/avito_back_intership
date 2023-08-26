@@ -107,10 +107,15 @@ func (s *Storage) CreateUser(user_id int) error {
 func (s *Storage) DeleteUser(user_id string) error {
 	const op = "storage.postgres.DeleteUser"
 
-	_, err := s.db.Exec(`DELETE FROM people WHERE user_id=$1;`, user_id)
+	res, err := s.db.Exec(`DELETE FROM people WHERE user_id=$1;`, user_id)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
+	if rows, err := res.RowsAffected(); rows == 0 {
+		fmt.Printf("err: %v\n", err)
+		return fmt.Errorf("%s: %v", op, storage.ErrNothingDeleteUser)
+	}
+
 	return nil
 }
 

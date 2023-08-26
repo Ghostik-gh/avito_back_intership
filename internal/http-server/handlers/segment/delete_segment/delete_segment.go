@@ -42,27 +42,6 @@ func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		// var req Request
-
-		// err := render.DecodeJSON(r.Body, &req)
-		// if err != nil {
-		// 	log.Error("failed to decode body request", sl.Err(err))
-		// 	render.JSON(w, r, response.Error("failed to decode request"))
-		// 	return
-		// }
-
-		// log.Info("request body decoded", slog.Any("request", req))
-
-		// if err := validator.New().Struct(req); err != nil {
-		// 	validateErr := err.(validator.ValidationErrors)
-
-		// 	log.Error("invalid request", sl.Err(err))
-
-		// 	render.JSON(w, r, response.ValidationError(validateErr))
-
-		// 	return
-		// }
-
 		segment := chi.URLParam(r, "segment")
 
 		fmt.Printf("segment: %v\n", segment)
@@ -72,7 +51,6 @@ func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 				render.JSON(w, r, response.Error(storage.ErrNothingDelete.Error()))
 				return
 			}
-			fmt.Printf("err: %v\n", err)
 			log.Error("failed to delete segment", slog.String("segment", segment))
 			render.JSON(w, r, response.Error("failed to delete segment"))
 			return

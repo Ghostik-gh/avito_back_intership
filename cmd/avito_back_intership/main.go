@@ -81,11 +81,11 @@ func main() {
 	// Создает юзера с 0 или более сегментами тут же происходит удаление
 	router.Post("/user", create_user.New(log, storage))
 	// Удаляет юзера
-	router.Delete("/user", delete_user.New(log, storage))
-	// Получает сегменты юзера
-	router.Get("/user/{user_id}", user_segments.New(log, storage))
+	router.Delete("/user/{user_id}", delete_user.New(log, storage))
 	// Получает всех пользователей
 	router.Get("/user", user_list.New(log, storage))
+	// Получает сегменты юзера
+	router.Get("/user/{user_id}", user_segments.New(log, storage))
 
 	// Выводит csv файл с логом для юзера
 	router.Get("/log/{user_id}", user_log.New(log, storage))

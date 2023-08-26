@@ -1,16 +1,16 @@
 package delete_user
 
 import (
-	"avito_back_intership/internal/lib/logger/sl"
+	"avito_back_intership/internal/storage"
 	"net/http"
 
 	"log/slog"
 
-	resp "avito_back_intership/internal/lib/api/response"
+	"avito_back_intership/internal/lib/api/response"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"github.com/go-playground/validator/v10"
 )
 
 type Request struct {
@@ -18,7 +18,7 @@ type Request struct {
 }
 
 type Response struct {
-	resp.Response
+	response.Response
 }
 
 //go:generate mockery --name=URLSaver
@@ -26,6 +26,16 @@ type UserDeleter interface {
 	DeleteUser(user_id string) error
 }
 
+// @Summary			Удаление пользователя
+// @Tags			User
+// @Description		Удаление пользователя
+// @ID				user-deletion
+// @Accept			json
+// @Produce			json
+// @Param			user_id	path		int						true	"user id"
+// @Success			200		{object}	Response
+// @Failure			default	{object}	Response
+// @Router			/user/{user_id} [delete]
 func New(log *slog.Logger, userDeleter UserDeleter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.user.deleter.New"
@@ -34,31 +44,33 @@ func New(log *slog.Logger, userDeleter UserDeleter) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
+		// err := render.DecodeJSON(r.Body, &req)
+		// if err != nil {
+		// 	log.Error("failed to decode body request", sl.Err(err))
+		// 	render.JSON(w, r, response.Error("failed to decode request"))
+		// 	return
+		// }
+		// log.Info("request body decoded", slog.Any("request", req))
+
+		// if err := validator.New().Struct(req); err != nil {
+		// 	validateErr := err.(validator.ValidationErrors)
+		// 	log.Error("invalid request", sl.Err(err))
+		// 	render.JSON(w, r, response.ValidationError(validateErr))
+		// 	return
+		// }
+
 		var req Request
-		err := render.DecodeJSON(r.Body, &req)
-		if err != nil {
-			log.Error("failed to decode body request", sl.Err(err))
-			render.JSON(w, r, resp.Error("failed to decode request"))
+		req.UserID = chi.URLParam(r, "user_id")
+
+		if err := userDeleter.DeleteUser(req.UserID); err != nil {
+			log.Error(storage.ErrNothingDeleteUser.Error(), slog.String("user", req.UserID))
+			render.JSON(w, r, response.Error(storage.ErrNothingDeleteUser.Error()))
 			return
 		}
 
-		log.Info("request body decoded", slog.Any("request", req))
-
-		if err := validator.New().Struct(req); err != nil {
-			validateErr := err.(validator.ValidationErrors)
-			log.Error("invalid request", sl.Err(err))
-			render.JSON(w, r, resp.ValidationError(validateErr))
-			return
-		}
-
-		if err = userDeleter.DeleteUser(req.UserID); err != nil {
-			log.Error("failed to delete user", slog.String("user_id", req.UserID))
-			render.JSON(w, r, resp.Error("failed to delete user"))
-			return
-		}
 		log.Info("user deleted")
 		render.JSON(w, r, Response{
-			Response: resp.OK(),
+			Response: response.OK(),
 		})
 	}
 

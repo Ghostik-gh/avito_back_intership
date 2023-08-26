@@ -13,6 +13,13 @@ definitions:
       status:
         type: string
     type: object
+  delete_user.Response:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+    type: object
   segment_list.Response:
     properties:
       error:
@@ -25,6 +32,17 @@ definitions:
         type: string
     type: object
   segment_users.Response:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+      userList:
+        items:
+          type: string
+        type: array
+    type: object
+  user_list.Response:
     properties:
       error:
         type: string
@@ -146,4 +164,50 @@ paths:
       summary: Создание сегмента
       tags:
       - Segment
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: Получения списка всех пользователей
+      operationId: user-list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_list.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/user_list.Response'
+      summary: Получения списка всех пользователей
+      tags:
+      - User
+  /user/{user_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление пользователя
+      operationId: user-deletion
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delete_user.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/delete_user.Response'
+      summary: Удаление пользователя
+      tags:
+      - User
 swagger: "2.0"

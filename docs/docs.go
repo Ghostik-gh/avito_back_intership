@@ -170,6 +170,75 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/user": {
+            "get": {
+                "description": "Получения списка всех пользователей",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Получения списка всех пользователей",
+                "operationId": "user-list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user_list.Response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/user_list.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{user_id}": {
+            "delete": {
+                "description": "Удаление пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Удаление пользователя",
+                "operationId": "user-deletion",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delete_user.Response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/delete_user.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -185,6 +254,17 @@ const docTemplate = `{
             }
         },
         "delete_segment.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "delete_user.Response": {
             "type": "object",
             "properties": {
                 "error": {
@@ -213,6 +293,23 @@ const docTemplate = `{
             }
         },
         "segment_users.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "userList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "user_list.Response": {
             "type": "object",
             "properties": {
                 "error": {
