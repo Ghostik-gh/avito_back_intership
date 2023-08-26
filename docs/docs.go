@@ -141,7 +141,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "segment name",
-                        "name": "name",
+                        "name": "segment",
                         "in": "path",
                         "required": true
                     }
