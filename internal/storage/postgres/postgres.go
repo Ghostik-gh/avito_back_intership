@@ -111,8 +111,7 @@ func (s *Storage) DeleteUser(user_id string) error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
-	if rows, err := res.RowsAffected(); rows == 0 {
-		fmt.Printf("err: %v\n", err)
+	if rows, _ := res.RowsAffected(); rows == 0 {
 		return fmt.Errorf("%s: %v", op, storage.ErrNothingDeleteUser)
 	}
 

@@ -14,8 +14,8 @@ import (
 
 	"avito_back_intership/internal/lib/logger/sl"
 	"avito_back_intership/internal/storage/postgres"
+
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -42,17 +42,14 @@ const (
 // @version			1.0
 // @description		Segmentation for A_B tests
 // @contact.name	GhostikGH
-// @contact.url	 	https://t.me/GhostikGH
+// @contact.url		https://t.me/GhostikGH
 // @contact.email	feodor200@mail.ru
 // @host			localhost:8002
 func main() {
 	cfg := config.MustLoad()
-
-	fmt.Println("CONFIG: ", cfg)
 	log := setupLogger(cfg.Env)
 
 	log.Info("starting slog")
-	log.Debug("debug mod")
 
 	storage, err := postgres.New(os.Getenv("DB_PATH"))
 	if err != nil {
@@ -129,7 +126,6 @@ func main() {
 }
 
 func setupLogger(env string) *slog.Logger {
-
 	var log *slog.Logger
 
 	switch env {

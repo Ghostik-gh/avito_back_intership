@@ -2,8 +2,8 @@ package delete_segment
 
 import (
 	"avito_back_intership/internal/storage"
+	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"log/slog"
@@ -22,15 +22,17 @@ type Response struct {
 //go:generate mockery --name=URLSaver
 type SegmentDeleter interface {
 	DeleteSegment(name string) error
+	SegmentInfo(segment string) (*sql.Rows, error)
+	CreateLog(user_id int, seg_name, opertaion string) error
 }
 
 // @Summary			Удаление сегмента
 // @Tags			Segment
-// @Description		Удаление сегмента
+// @Description		Удаляет сегмент, соответственно и всех пользователей из него
 // @ID				segment-deletion
 // @Accept			json
 // @Produce			json
-// @Param			segment	path		string						true	"segment name"
+// @Param			segment	path		string	true	"segment name"
 // @Success			200		{object}	Response
 // @Failure			default	{object}	Response
 // @Router			/segment/{segment} [delete]
@@ -44,7 +46,13 @@ func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 
 		segment := chi.URLParam(r, "segment")
 
-		fmt.Printf("segment: %v\n", segment)
+		rows, err := segmentDeleter.SegmentInfo(segment)
+		if err != nil {
+			log.Error("failed to get users in segment", slog.String("segment", segment))
+			render.JSON(w, r, response.Error("failed to get users in segment "+segment))
+			return
+		}
+
 		if err := segmentDeleter.DeleteSegment(segment); err != nil {
 			if errors.Is(err, storage.ErrNothingDelete) {
 				log.Error(storage.ErrNothingDelete.Error(), slog.String("segment", segment))
@@ -55,11 +63,16 @@ func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 			render.JSON(w, r, response.Error("failed to delete segment"))
 			return
 		}
-
 		log.Info("segment deleted")
+
+		for rows.Next() {
+			var tmp int
+			rows.Scan(&tmp)
+			segmentDeleter.CreateLog(tmp, segment, "remove")
+		}
+
 		render.JSON(w, r, Response{
 			Response: response.OK(),
 		})
 	}
-
 }

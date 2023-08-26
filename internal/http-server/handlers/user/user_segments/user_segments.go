@@ -26,13 +26,13 @@ type UserGetter interface {
 	UserList() (*sql.Rows, error)
 }
 
-// @Summary			Получение всех сегментов данного пользователя
+// @Summary			Сегменты пользователя
 // @Tags			User
 // @Description		Получение всех сегментов данного пользователя
 // @ID				user-segment-list
 // @Accept			json
 // @Produce			json
-// @Param			user_id	path		int						true	"user id"
+// @Param			user_id	path		int	true	"user id"
 // @Success			200		{object}	Response
 // @Failure			default	{object}	Response
 // @Router			/user/{user_id} [get]
@@ -89,5 +89,4 @@ func New(log *slog.Logger, userGetter UserGetter) http.HandlerFunc {
 			Response: response.OK(),
 		})
 	}
-
 }

@@ -4,7 +4,6 @@ import (
 	"avito_back_intership/internal/storage"
 	"database/sql"
 	"errors"
-	"fmt"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -18,16 +17,9 @@ import (
 	"github.com/go-chi/render"
 )
 
-// type Request struct {
-// 	Segment string `json:"segment" validate:"required"`
-// 	Amount  string `json:"percentage,omitempty"`
-// }
-
 type Response struct {
 	response.Response
 }
-
-// @Param			percentage		body		int						false	"percentage of people"
 
 //go:generate mockery --name=URLSaver
 type SegmentCreator interface {
@@ -39,14 +31,14 @@ type SegmentCreator interface {
 
 // @Summary			Создание сегмента
 // @Tags			Segment
-// @Description		Создание сегмента
+// @Description		Создает сегмент, необязательное поле указывает на то сколько процентов (float от 0 до 100) от зарегистрированных пользователей попадет в выборка
 // @ID				segment-creation
 // @Accept			json
 // @Produce			json
-// @Param			segment				path		string				true	"segment name"
-// @Param			percentage				path		int					false	"percentage"
-// @Success			200		{object}	Response
-// @Failure			default	{object}	Response
+// @Param			segment		path		string	true	"segment name"
+// @Param			percentage	path		float	false	"percentage"
+// @Success			200			{object}	Response
+// @Failure			default		{object}	Response
 // @Router			/segment/{segment}/{percentage} [post]
 func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -55,24 +47,6 @@ func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 			slog.String("op", op),
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
-
-		// var req Request
-
-		// err := render.DecodeJSON(r.Body, &req)
-		// if err != nil {
-		// 	log.Error("failed to decode body request", sl.Err(err))
-		// 	render.JSON(w, r, response.Error("failed to decode request"))
-		// 	return
-		// }
-
-		// log.Info("request body decoded", slog.Any("request", req))
-
-		// if err := validator.New().Struct(req); err != nil {
-		// 	validateErr := err.(validator.ValidationErrors)
-		// 	log.Error("invalid request", sl.Err(err))
-		// 	render.JSON(w, r, response.ValidationError(validateErr))
-		// 	return
-		// }
 
 		segment := chi.URLParam(r, "segment")
 		percentage := chi.URLParam(r, "percentage")
@@ -115,7 +89,7 @@ func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 			}
 			var count int = int(float64(len(users)) * (amount / 100))
 			rand_users := chooseRandomUsers(users, count)
-			fmt.Printf("rand_users: %v\n", rand_users)
+
 			for _, v := range rand_users {
 				id, err := strconv.Atoi(v)
 				if err != nil {
@@ -137,7 +111,6 @@ func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 			Response: response.OK(),
 		})
 	}
-
 }
 
 func chooseRandomUsers(userIDs []string, count int) []string {

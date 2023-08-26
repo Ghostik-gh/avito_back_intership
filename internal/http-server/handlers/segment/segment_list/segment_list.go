@@ -7,8 +7,6 @@ import (
 
 	"log/slog"
 
-	// response "avito_back_intership/internal/lib/api/response"
-
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 )
@@ -25,7 +23,7 @@ type SegmentListGetter interface {
 
 // @Summary			Получения списка всех сегментов
 // @Tags			Segment
-// @Description		Получения списка всех сегментов
+// @Description		Возвращает список всех зарегистрированных пользователей
 // @ID				segment-list
 // @Accept			json
 // @Produce			json
@@ -58,14 +56,5 @@ func New(log *slog.Logger, segmentListGetter SegmentListGetter) http.HandlerFunc
 			SegmentList: segmentList,
 			Response:    response.OK(),
 		})
-
-		// err = csv.CreateCSV(log, "segments.csv", rows)
-		// if err != nil {
-		// 	log.Error("failed to create csv")
-		// 	render.JSON(w, r, response.Error("failed to create csv"))
-		// 	return
-		// }
-
 	}
-
 }

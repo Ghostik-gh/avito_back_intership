@@ -27,10 +27,10 @@ type UserLogGetter interface {
 
 // @Summary			Лог пользователя
 // @Tags			Log
-// @Description		Лог пользователя за все время
+// @Description		Возвращает CSV файл для выбранного пользователя
 // @ID				user-log
 // @Produce			octet-stream
-// @Param			user_id	path		int						true	"user id"
+// @Param			user_id	path		int		true	"user id"
 // @Success			200		{object}	Response
 // @Failure			default	{object}	Response
 // @Router			/log/{user_id} [get]

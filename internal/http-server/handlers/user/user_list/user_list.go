@@ -22,9 +22,9 @@ type UserListGetter interface {
 	UserList() (*sql.Rows, error)
 }
 
-// @Summary			Получения списка всех пользователей
+// @Summary			Список всех пользователей
 // @Tags			User
-// @Description		Получения списка всех пользователей
+// @Description		Возвращает список всех зарегистрированных пользователей
 // @ID				user-list
 // @Accept			json
 // @Produce			json
@@ -57,14 +57,5 @@ func New(log *slog.Logger, userListGetter UserListGetter) http.HandlerFunc {
 			UserList: userList,
 			Response: response.OK(),
 		})
-
-		// err = csv.CreateCSV(log, "users.csv", rows)
-		// if err != nil {
-		// 	log.Error("failed to create csv")
-		// 	render.JSON(w, r, response.Error("failed to create csv"))
-		// 	return
-		// }
-
 	}
-
 }

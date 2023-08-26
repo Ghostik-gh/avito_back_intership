@@ -13,10 +13,6 @@ import (
 	"github.com/go-chi/render"
 )
 
-// type Request struct {
-// 	Segment string `json:"segment" validate:"required"`
-// }
-
 type Response struct {
 	UserList []string `json:"userList"`
 	response.Response
@@ -27,13 +23,13 @@ type SegmentGetter interface {
 	SegmentInfo(segment string) (*sql.Rows, error)
 }
 
-// @Summary			Получение всех пользователей в данном сегменте
+// @Summary			Все пользователи сегмента
 // @Tags			Segment
 // @Description		Получение всех пользователей в данном сегменте
 // @ID				segment-user-list
 // @Accept			json
 // @Produce			json
-// @Param			segment	path		string						true	"segment name"
+// @Param			segment	path		string	true	"segment name"
 // @Success			200		{object}	Response
 // @Failure			default	{object}	Response
 // @Router			/segment/{segment} [get]
@@ -71,18 +67,5 @@ func New(log *slog.Logger, segmentGetter SegmentGetter) http.HandlerFunc {
 			UserList: userList,
 			Response: response.OK(),
 		})
-
-		// err = csv.CreateCSV(log, "segments_for_user.csv", rows)
-		// if err != nil {
-		// 	log.Error("failed to create csv", slog.String("segment", segment))
-		// 	render.JSON(w, r, response.Error("failed to create csv "+segment))
-		// 	return
-		// }
-
-		// log.Info("csv file created")
-		// render.JSON(w, r, Response{
-		// 	Response: response.OK(),
-		// })
 	}
-
 }

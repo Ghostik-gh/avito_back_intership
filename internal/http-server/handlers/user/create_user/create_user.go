@@ -16,7 +16,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// UserID    string   `json:"userID" validate:"required,number"`
 type Request struct {
 	AddedSeg  []string `json:"addedSeg,omitempty"`
 	RemoveSeg []string `json:"removeSeg,omitempty"`
@@ -25,8 +24,6 @@ type Request struct {
 type Response struct {
 	response.Response
 }
-
-// @Param			user_id			path		int					false	"percentage"
 
 //go:generate mockery --name=URLSaver
 type UserCreater interface {
@@ -44,8 +41,8 @@ type UserCreater interface {
 // @ID				create-user
 // @Accept			json
 // @Produce			json
-// @Param			user_id			path		int					true	"user id"
-// @Param			input			body		Request				false	"user update data"
+// @Param			user_id	path		int		true	"user id"
+// @Param			input	body		Request	false	"user update data"
 // @Success			200		{object}	Response
 // @Failure			default	{object}	Response
 // @Router			/user/{user_id} [post]
@@ -153,5 +150,4 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 			Response: response.OK(),
 		})
 	}
-
 }
