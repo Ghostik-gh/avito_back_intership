@@ -41,45 +41,6 @@
                     }
                 }
             },
-            "post": {
-                "description": "Создание сегмента",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Segment"
-                ],
-                "summary": "Создание сегмента",
-                "operationId": "segment-creation",
-                "parameters": [
-                    {
-                        "description": "segment name",
-                        "name": "segment",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/create_segment.Request"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/create_segment.Response"
-                        }
-                    },
-                    "default": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/create_segment.Response"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "description": "Удаление сегмента",
                 "consumes": [
@@ -158,23 +119,54 @@
                     }
                 }
             }
+        },
+        "/segment/{segment}/{percentage}": {
+            "post": {
+                "description": "Создание сегмента",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Segment"
+                ],
+                "summary": "Создание сегмента",
+                "operationId": "segment-creation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "segment name",
+                        "name": "segment",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "percentage",
+                        "name": "percentage",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/create_segment.Response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/create_segment.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "create_segment.Request": {
-            "type": "object",
-            "required": [
-                "segment"
-            ],
-            "properties": {
-                "percentage": {
-                    "type": "string"
-                },
-                "segment": {
-                    "type": "string"
-                }
-            }
-        },
         "create_segment.Response": {
             "type": "object",
             "properties": {

@@ -1,13 +1,4 @@
 definitions:
-  create_segment.Request:
-    properties:
-      percentage:
-        type: string
-      segment:
-        type: string
-    required:
-    - segment
-    type: object
   create_segment.Response:
     properties:
       error:
@@ -107,32 +98,6 @@ paths:
       summary: Получения списка всех сегментов
       tags:
       - Segment
-    post:
-      consumes:
-      - application/json
-      description: Создание сегмента
-      operationId: segment-creation
-      parameters:
-      - description: segment name
-        in: body
-        name: segment
-        required: true
-        schema:
-          $ref: '#/definitions/create_segment.Request'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/create_segment.Response'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/create_segment.Response'
-      summary: Создание сегмента
-      tags:
-      - Segment
   /segment/{segment}:
     get:
       consumes:
@@ -157,6 +122,36 @@ paths:
           schema:
             $ref: '#/definitions/segment_users.Response'
       summary: Получение всех пользователей в данном сегменте
+      tags:
+      - Segment
+  /segment/{segment}/{percentage}:
+    post:
+      consumes:
+      - application/json
+      description: Создание сегмента
+      operationId: segment-creation
+      parameters:
+      - description: segment name
+        in: path
+        name: segment
+        required: true
+        type: string
+      - description: percentage
+        in: path
+        name: percentage
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/create_segment.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/create_segment.Response'
+      summary: Создание сегмента
       tags:
       - Segment
 swagger: "2.0"
