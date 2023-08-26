@@ -89,7 +89,7 @@ func (s *Storage) DeleteSegment(name string) error {
 	}
 
 	if rows, _ := res.RowsAffected(); rows == 0 {
-		return fmt.Errorf("%s: %v", op, "nothing to delete")
+		return fmt.Errorf("%s: %v", op, storage.ErrNothingDelete)
 	}
 	return nil
 }

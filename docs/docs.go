@@ -21,6 +21,34 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/segment": {
+            "get": {
+                "description": "Получения списка всех сегментов",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Segment"
+                ],
+                "summary": "Получения списка всех сегментов",
+                "operationId": "segment-list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/segment_list.Response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/segment_list.Response"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Создание сегмента",
                 "consumes": [
@@ -37,7 +65,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "segment name",
-                        "name": "input",
+                        "name": "segment",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -45,7 +73,98 @@ const docTemplate = `{
                         }
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/create_segment.Response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/create_segment.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаление сегмента",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Segment"
+                ],
+                "summary": "Удаление сегмента",
+                "operationId": "segment-deletion",
+                "parameters": [
+                    {
+                        "description": "segment name",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/delete_segment.Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delete_segment.Response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/delete_segment.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/segment/{segment}": {
+            "get": {
+                "description": "Получение всех пользователей в данном сегменте",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Segment"
+                ],
+                "summary": "Получение всех пользователей в данном сегменте",
+                "operationId": "segment-user-list",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "segment name",
+                        "name": "segment",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/segment_users.Response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/segment_users.Response"
+                        }
+                    }
+                }
             }
         }
     },
@@ -56,11 +175,78 @@ const docTemplate = `{
                 "segment"
             ],
             "properties": {
-                "amount": {
+                "percentage": {
                     "type": "string"
                 },
                 "segment": {
                     "type": "string"
+                }
+            }
+        },
+        "create_segment.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "delete_segment.Request": {
+            "type": "object",
+            "required": [
+                "segment"
+            ],
+            "properties": {
+                "segment": {
+                    "type": "string"
+                }
+            }
+        },
+        "delete_segment.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "segment_list.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "segmentList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "segment_users.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "userList": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }

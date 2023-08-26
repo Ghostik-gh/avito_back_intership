@@ -12,7 +12,7 @@ import (
 
 	"log/slog"
 
-	resp "avito_back_intership/internal/lib/api/response"
+	"avito_back_intership/internal/lib/api/response"
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
@@ -21,18 +21,15 @@ import (
 
 type Request struct {
 	Segment string `json:"segment" validate:"required"`
-	Amount  string `json:"amount,omitempty"`
+	Amount  string `json:"percentage,omitempty"`
 }
 
 type Response struct {
-	resp.Response
+	response.Response
 }
 
-// @Success			200		{object}	userModel.TokenAccessModel	"data"
-// @Failure			400,404	{object}	httpModel.ResponseMessage
-// @Failure			500		{object}	httpModel.ResponseMessage
-// @Failure			default	{object}	httpModel.ResponseMessage
-//
+// @Param			percentage		body		int						false	"percentage of people"
+
 //go:generate mockery --name=URLSaver
 type SegmentCreator interface {
 	CreateSegment(name string, amount string) error
@@ -47,7 +44,9 @@ type SegmentCreator interface {
 // @ID				segment-creation
 // @Accept			json
 // @Produce			json
-// @Param			input	body		Request						true	"segment name"
+// @Param			segment			body		Request					true	"segment name"
+// @Success			200		{object}	Response
+// @Failure			default	{object}	Response
 // @Router			/segment [post]
 func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +61,7 @@ func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 		err := render.DecodeJSON(r.Body, &req)
 		if err != nil {
 			log.Error("failed to decode body request", sl.Err(err))
-			render.JSON(w, r, resp.Error("failed to decode request"))
+			render.JSON(w, r, response.Error("failed to decode request"))
 			return
 		}
 
@@ -71,31 +70,34 @@ func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 		if err := validator.New().Struct(req); err != nil {
 			validateErr := err.(validator.ValidationErrors)
 			log.Error("invalid request", sl.Err(err))
-			render.JSON(w, r, resp.ValidationError(validateErr))
+			render.JSON(w, r, response.ValidationError(validateErr))
 			return
 		}
 
 		amount, err := strconv.ParseFloat(req.Amount, 64)
-		if err != nil {
-			log.Info("amount not number ", sl.Err(err))
-		}
 		fmt.Printf("amount: %v\n", amount)
-		if amount <= 0 || req.Amount == "" || amount > 100 {
+		if err != nil {
 			if err := segmentCreator.CreateSegment(req.Segment, "0"); err != nil {
 				if errors.Is(err, storage.ErrSegmentExists) {
 					log.Error(storage.ErrSegmentExists.Error(), slog.String("segment", req.Segment))
-					render.JSON(w, r, resp.Error(storage.ErrSegmentExists.Error()))
+					render.JSON(w, r, response.Error(storage.ErrSegmentExists.Error()))
 					return
 				}
-				log.Error("failed to create segment", slog.String("segment", req.Segment))
-				render.JSON(w, r, resp.Error("failed to create segment"))
+			}
+			log.Error("amount not number", slog.String("segment", req.Segment))
+			render.JSON(w, r, response.Error("amount not number"))
+			return
+		} else {
+			if amount < 0 || amount > 100 {
+				log.Error("wrong number", slog.String("segment", req.Segment))
+				render.JSON(w, r, response.Error("wrong number"))
 				return
 			}
-		} else {
+
 			err := segmentCreator.CreateSegment(req.Segment, req.Amount)
 			if errors.Is(err, storage.ErrSegmentExists) {
 				log.Error(storage.ErrSegmentExists.Error(), slog.String("segment", req.Segment))
-				render.JSON(w, r, resp.Error(storage.ErrSegmentExists.Error()))
+				render.JSON(w, r, response.Error(storage.ErrSegmentExists.Error()))
 				return
 			}
 			rows, err := segmentCreator.UserList()
@@ -132,7 +134,7 @@ func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 
 		log.Info("segment created")
 		render.JSON(w, r, Response{
-			Response: resp.OK(),
+			Response: response.OK(),
 		})
 	}
 

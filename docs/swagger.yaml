@@ -1,12 +1,55 @@
 definitions:
   create_segment.Request:
     properties:
-      amount:
+      percentage:
         type: string
       segment:
         type: string
     required:
     - segment
+    type: object
+  create_segment.Response:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+    type: object
+  delete_segment.Request:
+    properties:
+      segment:
+        type: string
+    required:
+    - segment
+    type: object
+  delete_segment.Response:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+    type: object
+  segment_list.Response:
+    properties:
+      error:
+        type: string
+      segmentList:
+        items:
+          type: string
+        type: array
+      status:
+        type: string
+    type: object
+  segment_users.Response:
+    properties:
+      error:
+        type: string
+      status:
+        type: string
+      userList:
+        items:
+          type: string
+        type: array
     type: object
 host: localhost:8002
 info:
@@ -19,6 +62,51 @@ info:
   version: "1.0"
 paths:
   /segment:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление сегмента
+      operationId: segment-deletion
+      parameters:
+      - description: segment name
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/delete_segment.Request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delete_segment.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/delete_segment.Response'
+      summary: Удаление сегмента
+      tags:
+      - Segment
+    get:
+      consumes:
+      - application/json
+      description: Получения списка всех сегментов
+      operationId: segment-list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/segment_list.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/segment_list.Response'
+      summary: Получения списка всех сегментов
+      tags:
+      - Segment
     post:
       consumes:
       - application/json
@@ -27,14 +115,48 @@ paths:
       parameters:
       - description: segment name
         in: body
-        name: input
+        name: segment
         required: true
         schema:
           $ref: '#/definitions/create_segment.Request'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/create_segment.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/create_segment.Response'
       summary: Создание сегмента
+      tags:
+      - Segment
+  /segment/{segment}:
+    get:
+      consumes:
+      - application/json
+      description: Получение всех пользователей в данном сегменте
+      operationId: segment-user-list
+      parameters:
+      - description: segment name
+        in: path
+        name: segment
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/segment_users.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/segment_users.Response'
+      summary: Получение всех пользователей в данном сегменте
       tags:
       - Segment
 swagger: "2.0"

@@ -2,11 +2,13 @@ package delete_segment
 
 import (
 	"avito_back_intership/internal/lib/logger/sl"
+	"avito_back_intership/internal/storage"
+	"errors"
 	"net/http"
 
 	"log/slog"
 
-	resp "avito_back_intership/internal/lib/api/response"
+	"avito_back_intership/internal/lib/api/response"
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
@@ -18,7 +20,7 @@ type Request struct {
 }
 
 type Response struct {
-	resp.Response
+	response.Response
 }
 
 //go:generate mockery --name=URLSaver
@@ -26,6 +28,16 @@ type SegmentDeleter interface {
 	DeleteSegment(name string) error
 }
 
+// @Summary			Удаление сегмента
+// @Tags			Segment
+// @Description		Удаление сегмента
+// @ID				segment-deletion
+// @Accept			json
+// @Produce			json
+// @Param			input	body		Request						true	"segment name"
+// @Success			200		{object}	Response
+// @Failure			default	{object}	Response
+// @Router			/segment [delete]
 func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.segment.segment_deleter.New"
@@ -39,7 +51,7 @@ func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 		err := render.DecodeJSON(r.Body, &req)
 		if err != nil {
 			log.Error("failed to decode body request", sl.Err(err))
-			render.JSON(w, r, resp.Error("failed to decode request"))
+			render.JSON(w, r, response.Error("failed to decode request"))
 			return
 		}
 
@@ -50,18 +62,24 @@ func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 
 			log.Error("invalid request", sl.Err(err))
 
-			render.JSON(w, r, resp.ValidationError(validateErr))
+			render.JSON(w, r, response.ValidationError(validateErr))
 
 			return
 		}
 		if err = segmentDeleter.DeleteSegment(req.Segment); err != nil {
+			if errors.Is(err, storage.ErrNothingDelete) {
+				log.Error(storage.ErrNothingDelete.Error(), slog.String("segment", req.Segment))
+				render.JSON(w, r, response.Error(storage.ErrNothingDelete.Error()))
+				return
+			}
+
 			log.Error("failed to delete segment", slog.String("segment", req.Segment))
-			render.JSON(w, r, resp.Error("failed to delete segment"))
+			render.JSON(w, r, response.Error("failed to delete segment"))
 			return
 		}
 		log.Info("segment deleted")
 		render.JSON(w, r, Response{
-			Response: resp.OK(),
+			Response: response.OK(),
 		})
 	}
 

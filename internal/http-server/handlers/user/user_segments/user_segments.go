@@ -15,8 +15,8 @@ import (
 )
 
 type Response struct {
-	resp.Response
 	Segments []string
+	resp.Response
 }
 
 //go:generate mockery --name=URLSaver

@@ -7,13 +7,13 @@ import (
 	"log/slog"
 
 	resp "avito_back_intership/internal/lib/api/response"
-	"avito_back_intership/internal/lib/csv"
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 )
 
 type Response struct {
+	UserList []string
 	resp.Response
 }
 
@@ -37,17 +37,25 @@ func New(log *slog.Logger, userListGetter UserListGetter) http.HandlerFunc {
 			return
 		}
 
-		err = csv.CreateCSV(log, "users.csv", rows)
-		if err != nil {
-			log.Error("failed to create csv")
-			render.JSON(w, r, resp.Error("failed to create csv"))
-			return
+		var userList []string
+		for rows.Next() {
+			var one_row string
+			rows.Scan(&one_row)
+			userList = append(userList, one_row)
 		}
 
-		log.Info("csv file created")
 		render.JSON(w, r, Response{
+			UserList: userList,
 			Response: resp.OK(),
 		})
+
+		// err = csv.CreateCSV(log, "users.csv", rows)
+		// if err != nil {
+		// 	log.Error("failed to create csv")
+		// 	render.JSON(w, r, resp.Error("failed to create csv"))
+		// 	return
+		// }
+
 	}
 
 }
