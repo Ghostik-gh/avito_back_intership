@@ -3,6 +3,7 @@ package create_user
 import (
 	"avito_back_intership/internal/lib/logger/sl"
 	"database/sql"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"slices"
@@ -17,8 +18,13 @@ import (
 )
 
 type Request struct {
-	AddedSeg  []string `json:"addedSeg,omitempty"`
-	RemoveSeg []string `json:"removeSeg,omitempty"`
+	AddedSeg  []SegmentWithTime `json:"addedSeg,omitempty"`
+	RemoveSeg []string          `json:"removeSeg,omitempty"`
+}
+
+type SegmentWithTime struct {
+	Segment string `json:"segment,omitempty"`
+	Time    string `json:"time,omitempty"`
 }
 
 type Response struct {
@@ -33,11 +39,12 @@ type UserCreater interface {
 	CreateLog(userID int, segName, opertaion string) error
 	SegmentList() (*sql.Rows, error)
 	UserInfo(userID int) (*sql.Rows, error)
+	CreateUserSegmentTime(user_id int, segment, time string) error
 }
 
 // @Summary			Изменение сегментов у одного пользователя
 // @Tags			User
-// @Description		Изменяет состояние сегментов у пользователя, если пользователя нет, то он созадется
+// @Description		Изменяет состояние сегментов у пользователя, если пользователя нет, то он созадется. Также доступен timestamp в формате YYYY MM DD HH:MM:SS+00
 // @ID				create-user
 // @Accept			json
 // @Produce			json
@@ -118,21 +125,27 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 		}
 
 		for _, v := range req.AddedSeg {
-			if slices.Contains(userSegmentList, v) {
+			if slices.Contains(userSegmentList, v.Segment) {
 				continue
 			}
-			if slices.Contains(validSegments, v) {
-				err := userCreater.CreateUserSegment(userID, v)
+			if slices.Contains(validSegments, v.Segment) {
+				var err error
+				fmt.Printf("v.time: %v\n", v.Time)
+				if v.Time != "" {
+					err = userCreater.CreateUserSegmentTime(userID, v.Segment, v.Time)
+				} else {
+					err = userCreater.CreateUserSegment(userID, v.Segment)
+				}
 				if err != nil {
 					log.Error(err.Error())
 				}
-				err = userCreater.CreateLog(userID, v, "add")
+				err = userCreater.CreateLog(userID, v.Segment, "add")
 				if err != nil {
 					log.Error(err.Error())
 				}
-				userSegmentList = append(userSegmentList, v)
+				userSegmentList = append(userSegmentList, v.Segment)
 			} else {
-				log.Error("failed add segment to user", slog.String("segment", v))
+				log.Error("failed add segment to user", slog.String("segment", v.Segment))
 			}
 		}
 

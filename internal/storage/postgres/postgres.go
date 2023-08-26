@@ -128,6 +128,16 @@ func (s *Storage) CreateUserSegment(user_id int, segment string) error {
 	return nil
 }
 
+func (s *Storage) CreateUserSegmentTime(user_id int, segment, time string) error {
+	const op = "storage.postgres.CreateUserSegment"
+
+	_, err := s.db.Exec(`INSERT INTO user_segment (user_id, seg_name, delete_time) VALUES ($1, $2, $3);`, user_id, segment, time)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
+}
+
 func (s *Storage) DeleteUserSegment(user_id int, segment string) error {
 	const op = "storage.postgres.DeleteUserSegment"
 	_, err := s.db.Exec(`DELETE FROM user_segment WHERE user_id=$1 AND seg_name=$2;`, user_id, segment)

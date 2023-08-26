@@ -10,7 +10,7 @@ definitions:
     properties:
       addedSeg:
         items:
-          type: string
+          $ref: '#/definitions/create_user.SegmentWithTime'
         type: array
       removeSeg:
         items:
@@ -22,6 +22,13 @@ definitions:
       error:
         type: string
       status:
+        type: string
+    type: object
+  create_user.SegmentWithTime:
+    properties:
+      segment:
+        type: string
+      time:
         type: string
     type: object
   delete_segment.Response:
@@ -300,7 +307,7 @@ paths:
       consumes:
       - application/json
       description: Изменяет состояние сегментов у пользователя, если пользователя
-        нет, то он созадется
+        нет, то он созадется. Также доступен timestamp в формате YYYY MM DD HH:MM:SS+00
       operationId: create-user
       parameters:
       - description: user id

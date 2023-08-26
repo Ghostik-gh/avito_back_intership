@@ -276,7 +276,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Изменяет состояние сегментов у пользователя, если пользователя нет, то он созадется",
+                "description": "Изменяет состояние сегментов у пользователя, если пользователя нет, то он созадется. Также доступен timestamp в формате YYYY MM DD HH:MM:SS+00",
                 "consumes": [
                     "application/json"
                 ],
@@ -377,7 +377,7 @@ const docTemplate = `{
                 "addedSeg": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/create_user.SegmentWithTime"
                     }
                 },
                 "removeSeg": {
@@ -395,6 +395,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "create_user.SegmentWithTime": {
+            "type": "object",
+            "properties": {
+                "segment": {
+                    "type": "string"
+                },
+                "time": {
                     "type": "string"
                 }
             }
