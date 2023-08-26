@@ -54,7 +54,7 @@ func main() {
 	log.Info("starting slog")
 	log.Debug("debug mod")
 
-	storage, err := postgres.New(cfg.StoragePath)
+	storage, err := postgres.New(os.Getenv("DB_PATH"))
 	if err != nil {
 		log.Error("failed to init storage", sl.Err(err))
 		os.Exit(1)

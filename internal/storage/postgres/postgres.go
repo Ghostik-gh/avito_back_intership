@@ -14,7 +14,7 @@ type Storage struct {
 
 func New(storagePath string) (*Storage, error) {
 	const op = "storage.postgres.New"
-	db, err := sql.Open("postgres", "host=localhost port=5432 user=root password=qweasd sslmode=disable")
+	db, err := sql.Open("postgres", storagePath)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
