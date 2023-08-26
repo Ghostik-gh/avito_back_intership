@@ -22,7 +22,7 @@ const docTemplate = `{
     "paths": {
         "/log/{user_id}": {
             "get": {
-                "description": "Лог пользователя за все время",
+                "description": "Возвращает CSV файл для выбранного пользователя",
                 "produces": [
                     "application/octet-stream"
                 ],
@@ -58,7 +58,7 @@ const docTemplate = `{
         },
         "/segment": {
             "get": {
-                "description": "Получения списка всех сегментов",
+                "description": "Возвращает список всех зарегистрированных пользователей",
                 "consumes": [
                     "application/json"
                 ],
@@ -98,7 +98,7 @@ const docTemplate = `{
                 "tags": [
                     "Segment"
                 ],
-                "summary": "Получение всех пользователей в данном сегменте",
+                "summary": "Все пользователи сегмента",
                 "operationId": "segment-user-list",
                 "parameters": [
                     {
@@ -125,7 +125,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Удаление сегмента",
+                "description": "Удаляет сегмент, соответственно и всех пользователей из него",
                 "consumes": [
                     "application/json"
                 ],
@@ -164,7 +164,7 @@ const docTemplate = `{
         },
         "/segment/{segment}/{percentage}": {
             "post": {
-                "description": "Создание сегмента",
+                "description": "Создает сегмент, необязательное поле указывает на то сколько процентов (float от 0 до 100) от зарегистрированных пользователей попадет в выборка",
                 "consumes": [
                     "application/json"
                 ],
@@ -185,7 +185,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "integer",
+                        "type": "number",
                         "description": "percentage",
                         "name": "percentage",
                         "in": "path"
@@ -209,7 +209,7 @@ const docTemplate = `{
         },
         "/user": {
             "get": {
-                "description": "Получения списка всех пользователей",
+                "description": "Возвращает список всех зарегистрированных пользователей",
                 "consumes": [
                     "application/json"
                 ],
@@ -219,7 +219,7 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Получения списка всех пользователей",
+                "summary": "Список всех пользователей",
                 "operationId": "user-list",
                 "responses": {
                     "200": {
@@ -249,7 +249,7 @@ const docTemplate = `{
                 "tags": [
                     "User"
                 ],
-                "summary": "Получение всех сегментов данного пользователя",
+                "summary": "Сегменты пользователя",
                 "operationId": "user-segment-list",
                 "parameters": [
                     {
@@ -321,7 +321,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Удаление пользователя",
+                "description": "Удаление пользователя, удаляются все записи",
                 "consumes": [
                     "application/json"
                 ],

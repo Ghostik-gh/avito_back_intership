@@ -101,7 +101,7 @@ info:
 paths:
   /log/{user_id}:
     get:
-      description: Лог пользователя за все время
+      description: Возвращает CSV файл для выбранного пользователя
       operationId: user-log
       parameters:
       - description: user id
@@ -127,7 +127,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Получения списка всех сегментов
+      description: Возвращает список всех зарегистрированных пользователей
       operationId: segment-list
       produces:
       - application/json
@@ -147,7 +147,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Удаление сегмента
+      description: Удаляет сегмент, соответственно и всех пользователей из него
       operationId: segment-deletion
       parameters:
       - description: segment name
@@ -191,14 +191,15 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/segment_users.Response'
-      summary: Получение всех пользователей в данном сегменте
+      summary: Все пользователи сегмента
       tags:
       - Segment
   /segment/{segment}/{percentage}:
     post:
       consumes:
       - application/json
-      description: Создание сегмента
+      description: Создает сегмент, необязательное поле указывает на то сколько процентов
+        (float от 0 до 100) от зарегистрированных пользователей попадет в выборка
       operationId: segment-creation
       parameters:
       - description: segment name
@@ -209,7 +210,7 @@ paths:
       - description: percentage
         in: path
         name: percentage
-        type: integer
+        type: number
       produces:
       - application/json
       responses:
@@ -228,7 +229,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Получения списка всех пользователей
+      description: Возвращает список всех зарегистрированных пользователей
       operationId: user-list
       produces:
       - application/json
@@ -241,14 +242,14 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/user_list.Response'
-      summary: Получения списка всех пользователей
+      summary: Список всех пользователей
       tags:
       - User
   /user/{user_id}:
     delete:
       consumes:
       - application/json
-      description: Удаление пользователя
+      description: Удаление пользователя, удаляются все записи
       operationId: user-deletion
       parameters:
       - description: user id
@@ -292,7 +293,7 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/user_segments.Response'
-      summary: Получение всех сегментов данного пользователя
+      summary: Сегменты пользователя
       tags:
       - User
     post:
