@@ -53,6 +53,17 @@ definitions:
           type: string
         type: array
     type: object
+  user_segments.Response:
+    properties:
+      error:
+        type: string
+      segments:
+        items:
+          type: string
+        type: array
+      status:
+        type: string
+    type: object
 host: localhost:8002
 info:
   contact:
@@ -208,6 +219,31 @@ paths:
           schema:
             $ref: '#/definitions/delete_user.Response'
       summary: Удаление пользователя
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: Получение всех сегментов данного пользователя
+      operationId: user-segment-list
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_segments.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/user_segments.Response'
+      summary: Получение всех сегментов данного пользователя
       tags:
       - User
 swagger: "2.0"

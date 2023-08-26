@@ -2,12 +2,13 @@ package user_segments
 
 import (
 	"database/sql"
+	"log/slog"
 	"net/http"
+	"slices"
 	"strconv"
 
-	"log/slog"
-
-	resp "avito_back_intership/internal/lib/api/response"
+	"avito_back_intership/internal/lib/api/response"
+	"avito_back_intership/internal/storage"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -16,14 +17,25 @@ import (
 
 type Response struct {
 	Segments []string
-	resp.Response
+	response.Response
 }
 
 //go:generate mockery --name=URLSaver
 type UserGetter interface {
 	UserInfo(int) (*sql.Rows, error)
+	UserList() (*sql.Rows, error)
 }
 
+// @Summary			Получение всех сегментов данного пользователя
+// @Tags			User
+// @Description		Получение всех сегментов данного пользователя
+// @ID				user-segment-list
+// @Accept			json
+// @Produce			json
+// @Param			user_id	path		int						true	"user id"
+// @Success			200		{object}	Response
+// @Failure			default	{object}	Response
+// @Router			/user/{user_id} [get]
 func New(log *slog.Logger, userGetter UserGetter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.user.user_segments.New"
@@ -37,14 +49,31 @@ func New(log *slog.Logger, userGetter UserGetter) http.HandlerFunc {
 		userID, err := strconv.Atoi(userStr)
 		if err != nil {
 			log.Error("user id not number")
-			render.JSON(w, r, resp.Error("user id not number"))
+			render.JSON(w, r, response.Error("user id not number"))
+			return
+		}
+
+		rows, err := userGetter.UserList()
+		var userList []string
+		for rows.Next() {
+			var row string
+			rows.Scan(&row)
+			if err != nil {
+				log.Error(err.Error())
+			}
+			userList = append(userList, row)
+		}
+
+		if !slices.Contains(userList, userStr) {
+			log.Error(storage.ErrNothingDeleteUser.Error(), slog.String("user_id", userStr))
+			render.JSON(w, r, response.Error(storage.ErrNothingDeleteUser.Error()))
 			return
 		}
 
 		userData, err := userGetter.UserInfo(userID)
 		if err != nil {
 			log.Error("failed to get user info", slog.String("user_id", userStr))
-			render.JSON(w, r, resp.Error("failed to get user info"))
+			render.JSON(w, r, response.Error("failed to get user info"))
 			return
 		}
 
@@ -57,7 +86,7 @@ func New(log *slog.Logger, userGetter UserGetter) http.HandlerFunc {
 
 		render.JSON(w, r, Response{
 			Segments: userSegmentList,
-			Response: resp.OK(),
+			Response: response.OK(),
 		})
 	}
 
