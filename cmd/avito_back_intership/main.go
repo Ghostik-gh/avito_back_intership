@@ -70,7 +70,7 @@ func main() {
 	router.Use(middleware.URLFormat)
 
 	// Создает сегмент
-	router.Post("/segment", create_segment.New(log, storage))
+	router.Post("/segment/{segment}/{percentage}", create_segment.New(log, storage))
 	// Удаляет сегмент
 	router.Delete("/segment", delete_segment.New(log, storage))
 	// Получает список всех сегментов

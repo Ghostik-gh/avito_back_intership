@@ -1,7 +1,6 @@
 package create_segment
 
 import (
-	"avito_back_intership/internal/lib/logger/sl"
 	"avito_back_intership/internal/storage"
 	"database/sql"
 	"errors"
@@ -14,15 +13,15 @@ import (
 
 	"avito_back_intership/internal/lib/api/response"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
-	"github.com/go-playground/validator/v10"
 )
 
-type Request struct {
-	Segment string `json:"segment" validate:"required"`
-	Amount  string `json:"percentage,omitempty"`
-}
+// type Request struct {
+// 	Segment string `json:"segment" validate:"required"`
+// 	Amount  string `json:"percentage,omitempty"`
+// }
 
 type Response struct {
 	response.Response
@@ -44,10 +43,11 @@ type SegmentCreator interface {
 // @ID				segment-creation
 // @Accept			json
 // @Produce			json
-// @Param			segment			body		Request					true	"segment name"
+// @Param			segment				path		string				true	"segment name"
+// @Param			percentage			path		int					false	"percentage"
 // @Success			200		{object}	Response
 // @Failure			default	{object}	Response
-// @Router			/segment [post]
+// @Router			/segment/{segment}/{percentage} [post]
 func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.segment.create_segment.New"
@@ -56,47 +56,47 @@ func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 			slog.String("request_id", middleware.GetReqID(r.Context())),
 		)
 
-		var req Request
+		// var req Request
 
-		err := render.DecodeJSON(r.Body, &req)
-		if err != nil {
-			log.Error("failed to decode body request", sl.Err(err))
-			render.JSON(w, r, response.Error("failed to decode request"))
-			return
+		// err := render.DecodeJSON(r.Body, &req)
+		// if err != nil {
+		// 	log.Error("failed to decode body request", sl.Err(err))
+		// 	render.JSON(w, r, response.Error("failed to decode request"))
+		// 	return
+		// }
+
+		// log.Info("request body decoded", slog.Any("request", req))
+
+		// if err := validator.New().Struct(req); err != nil {
+		// 	validateErr := err.(validator.ValidationErrors)
+		// 	log.Error("invalid request", sl.Err(err))
+		// 	render.JSON(w, r, response.ValidationError(validateErr))
+		// 	return
+		// }
+
+		segment := chi.URLParam(r, "segment")
+		percentage := chi.URLParam(r, "percentage")
+		var err error
+		var amount float64
+		amount, err = strconv.ParseFloat(percentage, 64)
+		if amount == 0 {
+			err = nil
+			percentage = "0"
 		}
-
-		log.Info("request body decoded", slog.Any("request", req))
-
-		if err := validator.New().Struct(req); err != nil {
-			validateErr := err.(validator.ValidationErrors)
-			log.Error("invalid request", sl.Err(err))
-			render.JSON(w, r, response.ValidationError(validateErr))
-			return
-		}
-
-		amount, err := strconv.ParseFloat(req.Amount, 64)
-		fmt.Printf("amount: %v\n", amount)
 		if err != nil {
-			if err := segmentCreator.CreateSegment(req.Segment, "0"); err != nil {
-				if errors.Is(err, storage.ErrSegmentExists) {
-					log.Error(storage.ErrSegmentExists.Error(), slog.String("segment", req.Segment))
-					render.JSON(w, r, response.Error(storage.ErrSegmentExists.Error()))
-					return
-				}
-			}
-			log.Error("amount not number", slog.String("segment", req.Segment))
-			render.JSON(w, r, response.Error("amount not number"))
+			log.Error("not number", slog.String("percentage", percentage))
+			render.JSON(w, r, response.Error("not number"))
 			return
 		} else {
 			if amount < 0 || amount > 100 {
-				log.Error("wrong number", slog.String("segment", req.Segment))
+				log.Error("wrong number", slog.String("segment", segment))
 				render.JSON(w, r, response.Error("wrong number"))
 				return
 			}
 
-			err := segmentCreator.CreateSegment(req.Segment, req.Amount)
+			err := segmentCreator.CreateSegment(segment, percentage)
 			if errors.Is(err, storage.ErrSegmentExists) {
-				log.Error(storage.ErrSegmentExists.Error(), slog.String("segment", req.Segment))
+				log.Error(storage.ErrSegmentExists.Error(), slog.String("segment", segment))
 				render.JSON(w, r, response.Error(storage.ErrSegmentExists.Error()))
 				return
 			}
@@ -121,11 +121,11 @@ func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 				if err != nil {
 					log.Error(err.Error())
 				}
-				err = segmentCreator.CreateUserSegment(id, req.Segment)
+				err = segmentCreator.CreateUserSegment(id, segment)
 				if err != nil {
 					log.Error(err.Error())
 				}
-				err = segmentCreator.CreateLog(id, req.Segment, "add")
+				err = segmentCreator.CreateLog(id, segment, "add")
 				if err != nil {
 					log.Error(err.Error())
 				}
