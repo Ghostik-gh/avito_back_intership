@@ -44,8 +44,7 @@ const (
 // @contact.name	GhostikGH
 // @contact.url	 	https://t.me/GhostikGH
 // @contact.email	feodor200@mail.ru
-// @host			localhost:8080
-// @BasePath		/api/v1
+// @host			localhost:8002
 func main() {
 	cfg := config.MustLoad()
 
