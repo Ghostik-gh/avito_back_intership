@@ -30,7 +30,7 @@ type SegmentDeleter interface {
 // @ID				segment-deletion
 // @Accept			json
 // @Produce			json
-// @Param			name	path		string						true	"segment name"
+// @Param			segment	path		string						true	"segment name"
 // @Success			200		{object}	Response
 // @Failure			default	{object}	Response
 // @Router			/segment/{segment} [delete]

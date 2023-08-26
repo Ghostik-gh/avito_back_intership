@@ -16,10 +16,6 @@ definitions:
         items:
           type: string
         type: array
-      userID:
-        type: string
-    required:
-    - userID
     type: object
   create_user.Response:
     properties:
@@ -248,33 +244,6 @@ paths:
       summary: Получения списка всех пользователей
       tags:
       - User
-    post:
-      consumes:
-      - application/json
-      description: Изменяет состояние сегментов у пользователя, если пользователя
-        нет, то он созадется
-      operationId: create-user
-      parameters:
-      - description: user update data
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/create_user.Request'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/create_user.Response'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/create_user.Response'
-      summary: Изменение сегментов у одного пользователя
-      tags:
-      - User
   /user/{user_id}:
     delete:
       consumes:
@@ -324,6 +293,37 @@ paths:
           schema:
             $ref: '#/definitions/user_segments.Response'
       summary: Получение всех сегментов данного пользователя
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Изменяет состояние сегментов у пользователя, если пользователя
+        нет, то он созадется
+      operationId: create-user
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: user update data
+        in: body
+        name: input
+        schema:
+          $ref: '#/definitions/create_user.Request'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/create_user.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/create_user.Response'
+      summary: Изменение сегментов у одного пользователя
       tags:
       - User
 swagger: "2.0"

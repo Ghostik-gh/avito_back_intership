@@ -235,45 +235,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "Изменяет состояние сегментов у пользователя, если пользователя нет, то он созадется",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "User"
-                ],
-                "summary": "Изменение сегментов у одного пользователя",
-                "operationId": "create-user",
-                "parameters": [
-                    {
-                        "description": "user update data",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/create_user.Request"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/create_user.Response"
-                        }
-                    },
-                    "default": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/create_user.Response"
-                        }
-                    }
-                }
             }
         },
         "/user/{user_id}": {
@@ -310,6 +271,51 @@ const docTemplate = `{
                         "description": "",
                         "schema": {
                             "$ref": "#/definitions/user_segments.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Изменяет состояние сегментов у пользователя, если пользователя нет, то он созадется",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Изменение сегментов у одного пользователя",
+                "operationId": "create-user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "user update data",
+                        "name": "input",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/create_user.Request"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/create_user.Response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/create_user.Response"
                         }
                     }
                 }
@@ -367,9 +373,6 @@ const docTemplate = `{
         },
         "create_user.Request": {
             "type": "object",
-            "required": [
-                "userID"
-            ],
             "properties": {
                 "addedSeg": {
                     "type": "array",
@@ -382,9 +385,6 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
-                },
-                "userID": {
-                    "type": "string"
                 }
             }
         },
