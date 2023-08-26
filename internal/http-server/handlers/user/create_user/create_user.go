@@ -10,13 +10,14 @@ import (
 
 	"avito_back_intership/internal/lib/api/response"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
 )
 
+// UserID    string   `json:"userID" validate:"required,number"`
 type Request struct {
-	UserID    string   `json:"userID" validate:"required,number"`
 	AddedSeg  []string `json:"addedSeg,omitempty"`
 	RemoveSeg []string `json:"removeSeg,omitempty"`
 }
@@ -32,7 +33,7 @@ type UserCreater interface {
 	CreateUser(userID int) error
 	CreateUserSegment(userID int, segment string) error
 	DeleteUserSegment(userID int, segment string) error
-	CreateLog(userID int, seg_name, opertaion string) error
+	CreateLog(userID int, segName, opertaion string) error
 	SegmentList() (*sql.Rows, error)
 	UserInfo(userID int) (*sql.Rows, error)
 }
@@ -43,10 +44,11 @@ type UserCreater interface {
 // @ID				create-user
 // @Accept			json
 // @Produce			json
-// @Param			input			body		Request				true	"user update data"
+// @Param			user_id			path		int					true	"user id"
+// @Param			input			body		Request				false	"user update data"
 // @Success			200		{object}	Response
 // @Failure			default	{object}	Response
-// @Router			/user [post]
+// @Router			/user/{user_id} [post]
 func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handlers.user.create_user.New"
@@ -73,7 +75,9 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 			return
 		}
 
-		userID, err := strconv.Atoi(req.UserID)
+		UserIDstr := chi.URLParam(r, "user_id")
+
+		userID, err := strconv.Atoi(UserIDstr)
 		if err != nil {
 			log.Error("user id not number")
 			render.JSON(w, r, response.Error("user id not number"))
@@ -88,7 +92,7 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 
 		userData, err := userCreater.UserInfo(userID)
 		if err != nil {
-			log.Error("failed to get user info", slog.String("user_id", req.UserID))
+			log.Error("failed to get user info", slog.String("user_id", UserIDstr))
 			render.JSON(w, r, response.Error("failed to get user info"))
 			return
 		}
@@ -102,7 +106,7 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 
 		segments, err := userCreater.SegmentList()
 		if err != nil {
-			log.Error("failed to get segments info", slog.String("user_id", req.UserID))
+			log.Error("failed to get segments info", slog.String("user_id", UserIDstr))
 			render.JSON(w, r, response.Error("failed to get segments info"))
 			return
 		}

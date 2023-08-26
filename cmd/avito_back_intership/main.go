@@ -79,7 +79,7 @@ func main() {
 	router.Get("/segment/{segment}", segment_users.New(log, storage))
 
 	// Создает юзера с 0 или более сегментами тут же происходит удаление
-	router.Post("/user", create_user.New(log, storage))
+	router.Post("/user/{user_id}", create_user.New(log, storage))
 	// Удаляет юзера
 	router.Delete("/user/{user_id}", delete_user.New(log, storage))
 	// Получает всех пользователей
