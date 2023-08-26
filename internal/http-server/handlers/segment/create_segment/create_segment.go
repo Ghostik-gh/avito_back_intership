@@ -44,7 +44,7 @@ type SegmentCreator interface {
 // @Accept			json
 // @Produce			json
 // @Param			segment				path		string				true	"segment name"
-// @Param			percentage			path		int					false	"percentage"
+// @Param			percentage				path		int					false	"percentage"
 // @Success			200		{object}	Response
 // @Failure			default	{object}	Response
 // @Router			/segment/{segment}/{percentage} [post]

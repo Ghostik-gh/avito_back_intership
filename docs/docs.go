@@ -48,45 +48,6 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "Удаление сегмента",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Segment"
-                ],
-                "summary": "Удаление сегмента",
-                "operationId": "segment-deletion",
-                "parameters": [
-                    {
-                        "description": "segment name",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/delete_segment.Request"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/delete_segment.Response"
-                        }
-                    },
-                    "default": {
-                        "description": "",
-                        "schema": {
-                            "$ref": "#/definitions/delete_segment.Response"
-                        }
-                    }
-                }
             }
         },
         "/segment/{segment}": {
@@ -123,6 +84,43 @@ const docTemplate = `{
                         "description": "",
                         "schema": {
                             "$ref": "#/definitions/segment_users.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаление сегмента",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Segment"
+                ],
+                "summary": "Удаление сегмента",
+                "operationId": "segment-deletion",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "segment name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/delete_segment.Response"
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/delete_segment.Response"
                         }
                     }
                 }
@@ -182,17 +180,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
-                }
-            }
-        },
-        "delete_segment.Request": {
-            "type": "object",
-            "required": [
-                "segment"
-            ],
-            "properties": {
-                "segment": {
                     "type": "string"
                 }
             }

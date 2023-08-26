@@ -72,7 +72,7 @@ func main() {
 	// Создает сегмент
 	router.Post("/segment/{segment}/{percentage}", create_segment.New(log, storage))
 	// Удаляет сегмент
-	router.Delete("/segment", delete_segment.New(log, storage))
+	router.Delete("/segment/{segment}", delete_segment.New(log, storage))
 	// Получает список всех сегментов
 	router.Get("/segment", segment_list.New(log, storage))
 	// Получает список пользователей в данном сегменте

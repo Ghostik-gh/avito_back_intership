@@ -6,13 +6,6 @@ definitions:
       status:
         type: string
     type: object
-  delete_segment.Request:
-    properties:
-      segment:
-        type: string
-    required:
-    - segment
-    type: object
   delete_segment.Response:
     properties:
       error:
@@ -53,32 +46,6 @@ info:
   version: "1.0"
 paths:
   /segment:
-    delete:
-      consumes:
-      - application/json
-      description: Удаление сегмента
-      operationId: segment-deletion
-      parameters:
-      - description: segment name
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/delete_segment.Request'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/delete_segment.Response'
-        default:
-          description: ""
-          schema:
-            $ref: '#/definitions/delete_segment.Response'
-      summary: Удаление сегмента
-      tags:
-      - Segment
     get:
       consumes:
       - application/json
@@ -99,6 +66,31 @@ paths:
       tags:
       - Segment
   /segment/{segment}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление сегмента
+      operationId: segment-deletion
+      parameters:
+      - description: segment name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/delete_segment.Response'
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/delete_segment.Response'
+      summary: Удаление сегмента
+      tags:
+      - Segment
     get:
       consumes:
       - application/json
