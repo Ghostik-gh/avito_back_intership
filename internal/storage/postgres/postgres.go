@@ -200,6 +200,15 @@ func (s *Storage) SegmentList() (*sql.Rows, error) {
 	return data, nil
 }
 
+func (s *Storage) DeleteTTL() error {
+	const op = "storage.postgres.DeleteTTL"
+	_, err := s.db.Query(`DELETE FROM user_segment WHERE delete_time <= now()`)
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
+}
+
 func (s *Storage) Close() error {
 	const op = "storage.postgres.Close"
 	err := s.db.Close()

@@ -58,6 +58,19 @@ func main() {
 	}
 	log.Info("storage started success, tables created")
 
+	go func() {
+		for {
+			err := storage.DeleteTTL()
+			if err != nil {
+				log.Error("deletion failed")
+			}
+
+			time.Sleep(1 * time.Minute)
+		}
+	}()
+
+	log.Info("every minute delete by TTL started")
+
 	router := chi.NewRouter()
 
 	router.Use(middleware.RequestID)
