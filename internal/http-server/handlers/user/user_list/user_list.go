@@ -45,6 +45,7 @@ func New(log *slog.Logger, userListGetter UserListGetter) http.HandlerFunc {
 			render.JSON(w, r, response.Error("failed to get list of users"))
 			return
 		}
+		defer rows.Close()
 
 		var userList []string
 		for rows.Next() {
