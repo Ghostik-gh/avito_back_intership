@@ -3,7 +3,6 @@ package create_user
 import (
 	"avito_back_intership/internal/lib/logger/sl"
 	"database/sql"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"slices"
@@ -127,10 +126,11 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 		for _, v := range req.AddedSeg {
 			if slices.Contains(userSegmentList, v.Segment) {
 				continue
+			} else {
+				log.Info("user already in this segment", slog.String("segment", v.Segment))
 			}
 			if slices.Contains(validSegments, v.Segment) {
 				var err error
-				fmt.Printf("v.time: %v\n", v.Time)
 				if v.Time != "" {
 					err = userCreater.CreateUserSegmentTime(userID, v.Segment, v.Time)
 				} else {
@@ -145,7 +145,7 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 				}
 				userSegmentList = append(userSegmentList, v.Segment)
 			} else {
-				log.Error("failed add segment to user", slog.String("segment", v.Segment))
+				log.Info("segment not created", slog.String("segment", v.Segment))
 			}
 		}
 
