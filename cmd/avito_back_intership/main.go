@@ -62,7 +62,7 @@ func main() {
 		for {
 			err := storage.DeleteTTL()
 			if err != nil {
-				log.Error("deletion failed")
+				log.Error("deletion failed", err)
 			}
 			time.Sleep(1 * time.Minute)
 		}

@@ -11,6 +11,7 @@ require (
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/ajg/form v1.5.1 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-openapi/jsonpointer v0.20.0 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
@@ -21,7 +22,10 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
