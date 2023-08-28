@@ -102,7 +102,7 @@ info:
     email: feodor200@mail.ru
     name: GhostikGH
     url: https://t.me/GhostikGH
-  description: Segmentation for A_B tests
+  description: Dynamic Segmentation
   title: Avito Intership (Backend)
   version: "1.0"
 paths:

@@ -521,7 +521,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "Avito Intership (Backend)",
-	Description:      "Segmentation for A_B tests",
+	Description:      "Dynamic Segmentation",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

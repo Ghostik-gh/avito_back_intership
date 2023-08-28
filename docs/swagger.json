@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Segmentation for A_B tests",
+        "description": "Dynamic Segmentation",
         "title": "Avito Intership (Backend)",
         "contact": {
             "name": "GhostikGH",
