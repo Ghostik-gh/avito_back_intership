@@ -1,19 +1,40 @@
 package tests
 
-// import (
-// 	"avito_back_intership/internal/http-server/handlers/url/save"
-// 	"avito_back_intership/internal/lib/random"
-// 	"net/http"
-// 	"net/url"
-// 	"testing"
+import (
+	"net/url"
+	"testing"
 
-// 	"github.com/brianvoe/gofakeit/v6"
-// 	"github.com/gavv/httpexpect/v2"
-// )
+	"github.com/brianvoe/gofakeit/v6"
+	"github.com/gavv/httpexpect/v2"
+)
 
-// const (
-// 	host = "localhost:8002"
-// )
+const (
+	host = "localhost:8002"
+)
+
+func TestCreateSegment(t *testing.T) {
+	u := url.URL{
+		Scheme: "http",
+		Host:   host,
+	}
+	e := httpexpect.Default(t, u.String())
+
+	name := gofakeit.Bird()
+
+	e.POST("/segment/{segment}").WithPath("segment", name).Expect().Status(200)
+}
+func TestCreateSegmentTwice(t *testing.T) {
+	u := url.URL{
+		Scheme: "http",
+		Host:   host,
+	}
+	e := httpexpect.Default(t, u.String())
+
+	name := gofakeit.Bird()
+
+	e.POST("/segment/{segment}").WithPath("segment", name).Expect().Status(200)
+	e.POST("/segment/{segment}").WithPath("segment", name).Expect().JSON().Object().HasValue("error", "segment exists")
+}
 
 // func TestURLShortener_HappyPath(t *testing.T) {
 // 	u := url.URL{
