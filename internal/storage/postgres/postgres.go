@@ -20,8 +20,6 @@ func New(storagePath string) (*Storage, error) {
 	}
 
 	_, err = db.Exec(`
-		SET TIME ZONE 'Europe/Moscow';
-
 		CREATE TABLE IF NOT EXISTS
 		"segment" (
 			"name" VARCHAR(255) NOT NULL UNIQUE,
@@ -53,6 +51,9 @@ func New(storagePath string) (*Storage, error) {
 				"op_time" TIMESTAMPTZ NOT NULL
 			)
 		WITH (OIDS = FALSE);
+
+		ALTER DATABASE admin SET timezone TO '+03';
+
 
 		ALTER TABLE "user_segment" DROP CONSTRAINT IF EXISTS user_segment_fk0;
 		ALTER TABLE "user_segment" DROP CONSTRAINT IF EXISTS user_segment_fk1;
