@@ -19,7 +19,7 @@ type Response struct {
 	response.Response
 }
 
-//go:generate mockery --name=URLSaver
+//go:generate mockery --name=SegmentDeleter
 type SegmentDeleter interface {
 	DeleteSegment(name string) error
 	SegmentInfo(segment string) (*sql.Rows, error)
