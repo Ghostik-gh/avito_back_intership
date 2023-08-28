@@ -219,6 +219,7 @@ func (s *Storage) DeleteTTL() error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
+	defer data.Close()
 	for data.Next() {
 		var i int
 		var seg string

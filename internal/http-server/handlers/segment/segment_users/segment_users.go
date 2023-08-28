@@ -55,6 +55,7 @@ func New(log *slog.Logger, segmentGetter SegmentGetter) http.HandlerFunc {
 			render.JSON(w, r, response.Error("failed to get users in segment "+segment))
 			return
 		}
+		defer rows.Close()
 
 		var userList []string
 		for rows.Next() {

@@ -78,6 +78,7 @@ func New(log *slog.Logger, segmentCreator SegmentCreator) http.HandlerFunc {
 			if err != nil {
 				log.Error(err.Error())
 			}
+			defer rows.Close()
 			var users []string
 			for rows.Next() {
 				var row string

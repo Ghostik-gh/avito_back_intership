@@ -54,6 +54,12 @@ func New(log *slog.Logger, userGetter UserGetter) http.HandlerFunc {
 		}
 
 		rows, err := userGetter.UserList()
+		if err != nil {
+			log.Error("failed to get user list", slog.String("user_id", userStr))
+			render.JSON(w, r, response.Error("failed to get user list"))
+			return
+		}
+		defer rows.Close()
 		var userList []string
 		for rows.Next() {
 			var row string
@@ -76,6 +82,7 @@ func New(log *slog.Logger, userGetter UserGetter) http.HandlerFunc {
 			render.JSON(w, r, response.Error("failed to get user info"))
 			return
 		}
+		defer userData.Close()
 
 		var userSegmentList []string
 		for userData.Next() {
