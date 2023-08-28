@@ -138,6 +138,7 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 				}
 				if err != nil {
 					log.Error(err.Error())
+					continue
 				}
 				err = userCreater.CreateLog(userID, v.Segment, "add")
 				if err != nil {
