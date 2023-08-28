@@ -20,6 +20,8 @@ func New(storagePath string) (*Storage, error) {
 	}
 
 	_, err = db.Exec(`
+		SET TIME ZONE 'Europe/Moscow';
+
 		CREATE TABLE IF NOT EXISTS
 		"segment" (
 			"name" VARCHAR(255) NOT NULL UNIQUE,
@@ -200,9 +202,29 @@ func (s *Storage) SegmentList() (*sql.Rows, error) {
 	return data, nil
 }
 
+func (s *Storage) OldUser() (*sql.Rows, error) {
+	const op = "storage.postgres.OldUser"
+	data, err := s.db.Query(`SELECT user_id, seg_name FROM user_segment WHERE delete_time <= now() `)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return data, nil
+}
+
 func (s *Storage) DeleteTTL() error {
 	const op = "storage.postgres.DeleteTTL"
-	_, err := s.db.Query(`DELETE FROM user_segment WHERE delete_time <= now()`)
+
+	data, err := s.OldUser()
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	for data.Next() {
+		var i int
+		var seg string
+		data.Scan(&i, &seg)
+		s.CreateLog(i, seg, "remove")
+	}
+	_, err = s.db.Query(`DELETE FROM user_segment WHERE delete_time <= now()`)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
