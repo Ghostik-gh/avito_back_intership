@@ -40,7 +40,7 @@ const (
 
 // @title			Avito Intership (Backend)
 // @version			1.0
-// @description		Segmentation for A_B tests
+// @description		Dynamic Segmentation
 // @contact.name	GhostikGH
 // @contact.url		https://t.me/GhostikGH
 // @contact.email	feodor200@mail.ru
@@ -64,7 +64,6 @@ func main() {
 			if err != nil {
 				log.Error("deletion failed")
 			}
-
 			time.Sleep(1 * time.Minute)
 		}
 	}()
@@ -81,6 +80,7 @@ func main() {
 
 	// Создает сегмент
 	router.Post("/segment/{segment}/{percentage}", create_segment.New(log, storage))
+	router.Post("/segment/{segment}", create_segment.New(log, storage))
 	// Удаляет сегмент
 	router.Delete("/segment/{segment}", delete_segment.New(log, storage))
 	// Получает список всех сегментов
