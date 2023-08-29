@@ -8,10 +8,6 @@ import (
 	"github.com/gavv/httpexpect/v2"
 )
 
-const (
-	host = "localhost:8002"
-)
-
 func TestCreateSegment(t *testing.T) {
 
 	testCases := []struct {
@@ -36,6 +32,13 @@ func TestCreateSegment(t *testing.T) {
 			name:       "Segment Wrong Procentage",
 			segment:    gofakeit.Word(),
 			procentage: gofakeit.Float64Range(101, 1000),
+			code:       200,
+			error:      "wrong number",
+		},
+		{
+			name:       "Segment Wrong Procentage",
+			segment:    gofakeit.Word(),
+			procentage: -gofakeit.Float64Range(1, 1000),
 			code:       200,
 			error:      "wrong number",
 		},
