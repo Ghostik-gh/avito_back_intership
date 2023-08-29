@@ -52,7 +52,6 @@ func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 			render.JSON(w, r, response.Error("failed to get users in segment "+segment))
 			return
 		}
-		defer rows.Close()
 
 		if err := segmentDeleter.DeleteSegment(segment); err != nil {
 			if errors.Is(err, storage.ErrNothingDelete) {
@@ -71,7 +70,7 @@ func New(log *slog.Logger, segmentDeleter SegmentDeleter) http.HandlerFunc {
 			rows.Scan(&tmp)
 			segmentDeleter.CreateLog(tmp, segment, "remove")
 		}
-
+		rows.Close()
 		render.JSON(w, r, Response{
 			Response: response.OK(),
 		})

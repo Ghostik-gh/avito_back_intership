@@ -44,7 +44,6 @@ func New(log *slog.Logger, segmentListGetter SegmentListGetter) http.HandlerFunc
 			render.JSON(w, r, response.Error("failed to get list of segments"))
 			return
 		}
-		defer rows.Close()
 
 		var segmentList []string
 		for rows.Next() {
@@ -52,6 +51,7 @@ func New(log *slog.Logger, segmentListGetter SegmentListGetter) http.HandlerFunc
 			rows.Scan(&one_row)
 			segmentList = append(segmentList, one_row)
 		}
+		rows.Close()
 
 		render.JSON(w, r, Response{
 			SegmentList: segmentList,

@@ -99,7 +99,6 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 			render.JSON(w, r, response.Error("failed to get user info"))
 			return
 		}
-		defer userData.Close()
 
 		var userSegmentList []string
 		for userData.Next() {
@@ -107,6 +106,7 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 			userData.Scan(&row)
 			userSegmentList = append(userSegmentList, row)
 		}
+		userData.Close()
 
 		segments, err := userCreater.SegmentList()
 		if err != nil {
@@ -114,7 +114,6 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 			render.JSON(w, r, response.Error("failed to get segments info"))
 			return
 		}
-		defer segments.Close()
 
 		var validSegments []string
 		for segments.Next() {
@@ -125,6 +124,7 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 			}
 			validSegments = append(validSegments, row)
 		}
+		segments.Close()
 
 		for _, v := range req.AddedSeg {
 			if slices.Contains(userSegmentList, v.Segment) {

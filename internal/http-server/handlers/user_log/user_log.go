@@ -57,7 +57,6 @@ func New(log *slog.Logger, userLogGetter UserLogGetter) http.HandlerFunc {
 			render.JSON(w, r, response.Error("failed to get user's log"))
 			return
 		}
-		defer rows.Close()
 
 		w.Header().Set("Content-Type", "text/csv")
 		w.Header().Set("Content-Disposition", fmt.Sprint("attachment;filename="+userStr+".csv"))
@@ -89,6 +88,7 @@ func New(log *slog.Logger, userLogGetter UserLogGetter) http.HandlerFunc {
 		if err := rows.Err(); err != nil {
 			log.Error(err.Error())
 		}
+		rows.Close()
 
 		writer.Flush()
 		w.WriteHeader(http.StatusOK)

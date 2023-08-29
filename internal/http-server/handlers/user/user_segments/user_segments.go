@@ -59,7 +59,6 @@ func New(log *slog.Logger, userGetter UserGetter) http.HandlerFunc {
 			render.JSON(w, r, response.Error("failed to get user list"))
 			return
 		}
-		defer rows.Close()
 		var userList []string
 		for rows.Next() {
 			var row string
@@ -69,6 +68,7 @@ func New(log *slog.Logger, userGetter UserGetter) http.HandlerFunc {
 			}
 			userList = append(userList, row)
 		}
+		rows.Close()
 
 		if !slices.Contains(userList, userStr) {
 			log.Error(storage.ErrNothingDeleteUser.Error(), slog.String("user_id", userStr))

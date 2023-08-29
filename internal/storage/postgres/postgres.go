@@ -219,13 +219,14 @@ func (s *Storage) DeleteTTL() error {
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
 	}
-	defer data.Close()
 	for data.Next() {
 		var i int
 		var seg string
 		data.Scan(&i, &seg)
 		s.CreateLog(i, seg, "remove")
 	}
+	data.Close()
+
 	_, err = s.db.Query(`DELETE FROM user_segment WHERE delete_time <= now()`)
 	if err != nil {
 		return fmt.Errorf("%s: %w", op, err)
