@@ -13,107 +13,77 @@ const (
 )
 
 func TestCreateSegment(t *testing.T) {
-	u := url.URL{
-		Scheme: "http",
-		Host:   host,
+
+	testCases := []struct {
+		name       string
+		segment    string
+		procentage float64
+		code       int
+		error      string
+	}{
+		{
+			name:    "Segment",
+			segment: gofakeit.Word(),
+			code:    200,
+		},
+		{
+			name:       "Segment With Procentage",
+			segment:    gofakeit.Word(),
+			procentage: gofakeit.Float64Range(0, 100),
+			code:       200,
+		},
+		{
+			name:       "Segment Wrong Procentage",
+			segment:    gofakeit.Word(),
+			procentage: gofakeit.Float64Range(101, 1000),
+			code:       200,
+			error:      "wrong number",
+		},
+		{
+			name:    "Segment Empty",
+			segment: "",
+			code:    404,
+		},
 	}
-	e := httpexpect.Default(t, u.String())
 
-	name := gofakeit.Bird()
+	for _, tc := range testCases {
+		tc := tc
 
-	e.POST("/segment/{segment}").WithPath("segment", name).Expect().Status(200)
-}
-func TestCreateSegmentTwice(t *testing.T) {
-	u := url.URL{
-		Scheme: "http",
-		Host:   host,
+		t.Run(tc.name, func(t *testing.T) {
+
+			u := url.URL{
+				Scheme: "http",
+				Host:   host,
+			}
+			e := httpexpect.Default(t, u.String())
+			var req *httpexpect.Request
+			if tc.procentage != 0 {
+				req = e.POST("/segment/{segment}/{procentage}").
+					WithPath("segment", tc.segment).WithPath("procentage", tc.procentage)
+			} else {
+				req = e.POST("/segment/{segment}").WithPath("segment", tc.segment)
+			}
+
+			res := req.Expect().Status(tc.code)
+
+			if tc.code != 200 {
+				return
+			}
+
+			obj := res.JSON().Object()
+
+			if tc.error != "" {
+				obj.HasValue("error", tc.error)
+				return
+			} else {
+				obj.HasValue("status", "OK")
+			}
+
+			e.POST("/segment/{segment}").WithPath("segment", tc.segment).Expect().Status(200).JSON().Object().HasValue("error", "segment exists")
+
+			e.GET("/segment/{segment}").WithPath("segment", tc.segment).Expect().Status(200).JSON().Object().HasValue("userList", nil)
+
+			e.DELETE("/segment/{segment}").WithPath("segment", tc.segment).Expect().Status(200).JSON().Object().HasValue("status", "OK")
+		})
 	}
-	e := httpexpect.Default(t, u.String())
-
-	name := gofakeit.Bird()
-
-	e.POST("/segment/{segment}").WithPath("segment", name).Expect().Status(200)
-	e.POST("/segment/{segment}").WithPath("segment", name).Expect().JSON().Object().HasValue("error", "segment exists")
 }
-
-// func TestURLShortener_HappyPath(t *testing.T) {
-// 	u := url.URL{
-// 		Scheme: "http",
-// 		Host:   host,
-// 	}
-
-// 	e := httpexpect.Default(t, u.String())
-
-// 	e.POST("/url").
-// 		WithJSON(save.Request{
-// 			URL:   gofakeit.URL(),
-// 			Alias: random.GenerateAlias(10),
-// 		}).
-// 		WithBasicAuth("123", "1234").
-// 		Expect().
-// 		Status(200).
-// 		JSON().Object().
-// 		ContainsKey("alias")
-// }
-
-// func TestURLShortener_SaveRedirectDelete(t *testing.T) {
-// 	testCases := []struct {
-// 		name  string
-// 		url   string
-// 		alias string
-// 		error string
-// 	}{
-// 		{
-// 			name:  "Valid_URL",
-// 			url:   gofakeit.URL(),
-// 			alias: gofakeit.Word() + gofakeit.Word(),
-// 		},
-// 		{
-// 			name:  "Invalid_URL",
-// 			url:   "invalid_url",
-// 			alias: gofakeit.MinecraftAnimal(),
-// 			error: "field URL is not a valid URL",
-// 		},
-// 		{
-// 			name:  "Empty Alias",
-// 			url:   gofakeit.URL(),
-// 			alias: "",
-// 		},
-// 	}
-
-// 	for _, tc := range testCases {
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			u := url.URL{
-// 				Scheme: "http",
-// 				Host:   host,
-// 			}
-
-// 			e := httpexpect.Default(t, u.String())
-
-// 			resp := e.POST("/url").WithJSON(save.Request{
-// 				URL:   tc.url,
-// 				Alias: tc.alias,
-// 			}).
-// 				WithBasicAuth("123", "1234").
-// 				Expect().Status(http.StatusOK).
-// 				JSON().Object()
-
-// 			if tc.error != "" {
-// 				resp.NotContainsKey("alias")
-
-// 				resp.Value("error").String().IsEqual(tc.error)
-
-// 				return
-// 			}
-// 			alias := tc.alias
-
-// 			if alias != "" {
-// 				resp.Value("alias").String().IsEqual(tc.alias)
-// 			} else {
-
-// 			}
-
-// 		})
-// 	}
-
-// }
