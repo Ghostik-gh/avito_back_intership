@@ -209,6 +209,7 @@ func (s *Storage) OldUser() (*sql.Rows, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
+	data.Close()
 	return data, nil
 }
 

@@ -62,11 +62,14 @@ func New(log *slog.Logger, userCreater UserCreater) http.HandlerFunc {
 
 		var req Request
 
-		err := render.DecodeJSON(r.Body, &req)
-		if err != nil {
-			log.Error("failed to decode body request", sl.Err(err))
-			render.JSON(w, r, response.Error("failed to decode request"))
-			return
+		if r.Body != nil {
+
+			err := render.DecodeJSON(r.Body, &req)
+			if err != nil {
+				log.Error("failed to decode body request", sl.Err(err))
+				render.JSON(w, r, response.Error("failed to decode request"))
+				return
+			}
 		}
 
 		log.Info("request body decoded", slog.Any("request", req))
