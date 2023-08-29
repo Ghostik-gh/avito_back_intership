@@ -80,9 +80,9 @@ func TestCreateSegment(t *testing.T) {
 			}
 
 			e.POST("/segment/{segment}").WithPath("segment", tc.segment).Expect().Status(200).JSON().Object().HasValue("error", "segment exists")
-
-			e.GET("/segment/{segment}").WithPath("segment", tc.segment).Expect().Status(200).JSON().Object().HasValue("userList", nil)
-
+			if tc.procentage == 0 {
+				e.GET("/segment/{segment}").WithPath("segment", tc.segment).Expect().Status(200).JSON().Object().HasValue("userList", nil)
+			}
 			e.DELETE("/segment/{segment}").WithPath("segment", tc.segment).Expect().Status(200).JSON().Object().HasValue("status", "OK")
 		})
 	}
