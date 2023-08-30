@@ -21,7 +21,7 @@ type Response struct {
 	response.Response
 }
 
-//go:generate mockery --name=URLSaver
+//go:generate mockery --name=SegmentCreator
 type SegmentCreator interface {
 	CreateSegment(name string, amount string) error
 	UserList() (*sql.Rows, error)
