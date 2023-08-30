@@ -1,6 +1,6 @@
 # [Техническое задание](TASK.md)
 
-# Видеопрезентация функционала сервиса: coming soon!
+<!-- # Видеопрезентация функционала сервиса: coming soon! -->
 
 <h4>
 
@@ -176,6 +176,15 @@ curl -X 'GET' \
 ```
 
 </h4>
+
+# Stack:
+
+- chi - routing
+- cleanenv, godotenv - config
+- pq - storage
+- swaggo/http-swagger, swag - swagger
+- gofakeit, httpexpect, testify - testing
+- docker - develop
 
 ## Underway:
 
